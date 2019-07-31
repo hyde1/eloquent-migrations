@@ -31,6 +31,10 @@ abstract class Seeder
         return get_class($this);
     }
 
+	public function table(string $name)
+	{
+		return $this->getDb()->table($name);
+	}
 	/**
      * Run the database seeds.
      *
