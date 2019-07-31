@@ -25,4 +25,4 @@ $app->addCommands([
 	new Command\Status()
 ]);
 
-$app->run();
+return $app;
