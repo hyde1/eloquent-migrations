@@ -10,7 +10,7 @@ class DummySeeder extends Seeder
 	 * @return Seeder[]
 	 */
 	 /* Uncomment to add dependencies
-	public function getDependencies():array
+	public function getDependencies()
 	{
 		return [
 			'MySeeder',

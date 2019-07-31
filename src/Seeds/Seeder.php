@@ -9,7 +9,7 @@ abstract class Seeder
 	 *
 	 * @return Seeder[]
 	 */
-	public function getDependencies():array
+	public function getDependencies()
 	{
 		return [];
 	}
