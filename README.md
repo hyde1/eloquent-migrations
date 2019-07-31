@@ -1,5 +1,5 @@
-# eloquent-migrations
-Use laravel migration system without laravel
+# Eloquent Migrations
+Use Eloquent migration system without Laravel
 
 ```bash
 vendor/bin/elmigrator init . # Init the project
