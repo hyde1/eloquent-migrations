@@ -42,6 +42,11 @@ abstract class AbstractCommand extends Command
 		return (string)$this->config['paths']['migrations'];
 	}
 
+	protected function getSeedPath():string
+	{
+		return (string)$this->config['paths']['seeds'];
+	}
+
 	protected function getDb()
 	{
 		return $this->config['db'];

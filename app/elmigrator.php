@@ -22,7 +22,9 @@ $app->addCommands([
 	new Command\CreateMigration(),
 	new Command\Migrate(),
 	new Command\Rollback(),
-	new Command\Status()
+	new Command\Status(),
+	new Command\CreateSeed(),
+	new Command\RunSeed(),
 ]);
 
 return $app;

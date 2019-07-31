@@ -1,0 +1,31 @@
+<?php
+
+use Hyde1\EloquentMigrations\Seeds\Seeder;
+
+class DummySeeder extends Seeder
+{
+	/**
+	 * Return array of Seeds that needs to be run before
+	 *
+	 * @return Seeder[]
+	 */
+	 /* Uncomment to add dependencies
+	public function getDependencies():array
+	{
+		return [
+			'MySeeder',
+			'UserSeeder'
+		];
+	}
+	*/
+
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+		// Insert your seed data here
+    }
+}
