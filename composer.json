@@ -1,0 +1,23 @@
+{
+    "name": "hyde1/eloquent-migrations",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Marc Legay",
+            "email": "marc@ru3.com"
+        }
+    ],
+    "require": {
+		"php": ">=7.2",
+		"symfony/console": "^2.8|^3.0|^4.0",
+        "illuminate/database": "^5.8",
+		"illuminate/console": "^5.8",
+		"illuminate/filesystem": "^5.8"
+	},
+	"autoload": {
+		"psr-4": {
+			"Hyde1\\EloquentMigrations\\": "src/"
+		}
+	},
+	"bin": ["bin/elmigrator"]
+}

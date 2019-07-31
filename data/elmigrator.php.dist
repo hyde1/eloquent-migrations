@@ -1,0 +1,18 @@
+<?php
+
+return [
+	'paths' => [
+		'migrations' => 'database/migrations',
+		'seeds' => 'database/seeds',
+	],
+	'migration_table' => 'el_migrations',
+	'environments' => [
+		'default_env' => 'development',
+		'development' => [
+			'dsn' => 'pgsql://user:pass@host/mydb'
+		],
+		'production' => [
+			'dsn' => 'pgsql://user:pass@host/mydb'
+		]
+	]
+];
