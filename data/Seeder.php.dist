@@ -7,7 +7,7 @@ class DummySeeder extends Seeder
 	/**
 	 * Return array of Seeds that needs to be run before
 	 *
-	 * @return Seeder[]
+	 * @return array
 	 */
 	 /* Uncomment to add dependencies
 	public function getDependencies()

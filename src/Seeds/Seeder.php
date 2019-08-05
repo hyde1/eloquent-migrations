@@ -13,7 +13,7 @@ abstract class Seeder
 	/**
 	 * Return array of Seeds that needs to be run before
 	 *
-	 * @return Seeder[]
+	 * @return array 
 	 */
 	public function getDependencies()
 	{
