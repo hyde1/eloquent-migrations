@@ -18,6 +18,13 @@ class DummySeeder extends Seeder
 		];
 	}
 	*/
+    /**
+     * Enables, if supported, wrapping the migration within a transaction.
+	 * Uncomment to prevent transaction
+     *
+     * @var bool
+     */
+    //public $withinTransaction = false;
 
     /**
      * Run the database seeds.

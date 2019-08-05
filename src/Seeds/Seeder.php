@@ -3,7 +3,13 @@
 namespace Hyde1\EloquentMigrations\Seeds;
 
 abstract class Seeder
-{
+{    /**
+     * Enables, if supported, wrapping the migration within a transaction.
+     *
+     * @var bool
+     */
+    public $withinTransaction = true;
+
 	/**
 	 * Return array of Seeds that needs to be run before
 	 *
@@ -21,6 +27,11 @@ abstract class Seeder
 	}
 
 	protected function getDb()
+	{
+		return $this->db;
+	}
+
+	protected function db()
 	{
 		return $this->db;
 	}
