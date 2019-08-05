@@ -68,14 +68,14 @@ class RunSeed extends AbstractCommand
 
 	protected function executeSeed(Seeder $seeder)
 	{
-		$db = 
+		$db = $this->getDb();
 		$seeder->setDb($db);
 		$this->output->writeln("<info>".$seeder->getName()."</info> seeding");
 		$start = microtime(true);
 		if (!$seeder->withinTransaction) {
 			$seeder->run();
 		} else {
-			$this->db->transaction(function () use ($seeder) {
+			$db->transaction(function () use ($seeder) {
 				$seeder->run();
 			});
 		}
