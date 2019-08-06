@@ -13,6 +13,7 @@ $capsule->addConnection([
 ]);
 
 return [
+	'default_environment' => 'developpment',
 	'paths' => [
 		'migrations' => 'database/migrations',
 		'seeds' => 'database/seeds',

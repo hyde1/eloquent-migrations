@@ -21,6 +21,7 @@ $app->addCommands([
 	new Command\Init(),
 	new Command\CreateMigration(),
 	new Command\Migrate(),
+	new Command\FreshMigration(),
 	new Command\Rollback(),
 	new Command\Status(),
 	new Command\CreateSeed(),

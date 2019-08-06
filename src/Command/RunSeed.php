@@ -17,6 +17,7 @@ class RunSeed extends AbstractCommand
 		$this
 			->setDescription('Run seed')
 			->addOption('--seed', '-s', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'What is the name of the seeder?')
+			->addOption('force', null, InputOption::VALUE_NONE, 'Force the operation to run when in production')
 			->setHelp('Run all (or specified) seeders'.PHP_EOL);
 
 		parent::configure();
@@ -25,6 +26,10 @@ class RunSeed extends AbstractCommand
 	public function execute(InputInterface $input, OutputInterface $output)
 	{
 		$this->bootstrap($input, $output);
+		if (! $this->confirmToProceed()) {
+            return;
+        }
+
 		$this->getDb();
 
 		$start = microtime(true);
