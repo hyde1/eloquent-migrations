@@ -41,7 +41,7 @@ abstract class AbstractCommand extends Command
 	{
 		$configfile = (string)$input->getOption('config');
 		$this->config = require getcwd() . DIRECTORY_SEPARATOR . $configfile;
-		$this->environment = $input->getOption('env', $this->config['default_environment']);
+		$this->environment = $input->getOption('env') ?? $this->config['default_environment'];
 	}
 
 	protected function getMigrationPath():string
@@ -100,7 +100,7 @@ abstract class AbstractCommand extends Command
     public function confirmToProceed($warning = 'Application In Production!', $callback = null)
     {
         $callback = is_null($callback) ? $this->getDefaultConfirmCallback() : $callback;
-        $shouldConfirm = $callback instanceof Closure ? call_user_func($callback) : $callback;
+        $shouldConfirm = $callback instanceof \Closure ? call_user_func($callback) : $callback;
         if ($shouldConfirm) {
             if ($this->input->hasOption('force') && $this->input->getOption('force')) {
                 return true;
