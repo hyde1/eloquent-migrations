@@ -5,35 +5,35 @@ use Hyde1\EloquentMigrations\Migrations\Migration;
 
 class DummyClass extends Migration
 {
-    /**
-     * Enables, if supported, wrapping the migration within a transaction.
-     *
-     * @var bool
-	*/
-    //public $withinTransaction = false;
+	/**
+	 * Enables, if supported, wrapping the migration within a transaction.
+	 *
+	 * @var bool
+	 */
+	//public $withinTransaction = false;
 	// Un comment if you want the migration not to run inside a transaction
 
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up()
-    {
-        $this->schema()->table('DummyTable', function (Blueprint $table) {
-            //
-        });
-    }
+	/**
+	 * Run the migrations.
+	 *
+	 * @return void
+	 */
+	public function up()
+	{
+		$this->schema()->table('DummyTable', function (Blueprint $table) {
+			//
+		});
+	}
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
-    {
-        $this->schema()->table('DummyTable', function (Blueprint $table) {
-            //
-        });
-    }
+	/**
+	 * Reverse the migrations.
+	 *
+	 * @return void
+	 */
+	public function down()
+	{
+		$this->schema()->table('DummyTable', function (Blueprint $table) {
+			//
+		});
+	}
 }
