@@ -19,5 +19,6 @@
 			"Hyde1\\EloquentMigrations\\": "src/"
 		}
 	},
-	"bin": ["bin/elmigrator"]
+	"bin": ["bin/elmigrator"],
+	"description": "Use Eloquent migration system without Laravel"
 }
