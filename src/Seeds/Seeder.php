@@ -20,23 +20,33 @@ abstract class Seeder
 		return [];
 	}
 
+	/** @var Connection */
 	private $db;
+
 	public function setDb($db)
 	{
 		$this->db = $db;
 	}
 
+	/**
+	 * @return Connection
+	 */
 	protected function getDb()
 	{
 		return $this->db;
 	}
 
+	/**
+	 * @return Connection
+	 */
 	protected function db()
 	{
 		return $this->db;
 	}
 
-
+	/**
+	 * @return string
+	 */
 	public function getName()
     {
         return get_class($this);
