@@ -2,6 +2,8 @@
 
 namespace Hyde1\EloquentMigrations\Seeds;
 
+use Illuminate\Database\Connection;
+
 abstract class Seeder
 {    /**
      * Enables, if supported, wrapping the migration within a transaction.
