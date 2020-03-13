@@ -36,6 +36,7 @@ class Rollback extends AbstractCommand
 			->setDescription('Rollback migrations')
 			->addOption('dry-run', 'x', InputOption::VALUE_NONE, 'Dump query to standard output instead of executing it')
 			->addOption('step', 's', InputOption::VALUE_REQUIRED, 'Number of migrations to rollback', 0)
+			->addOption('migration', 'm', InputOption::VALUE_REQUIRED, 'Migrate a specific migration')
 			->setHelp('Rollback the last migration'.PHP_EOL);
 
 		parent::configure();
@@ -51,6 +52,7 @@ class Rollback extends AbstractCommand
 			->rollback([$this->getMigrationPath()], [
 				'pretend' => $this->input->getOption('dry-run'),
 				'step' => (int)$this->input->getOption('step'),
+				'migration' => $this->input->getOption('migration'),
 			]);
 	}
 }

@@ -18,4 +18,29 @@ class Migrator extends \Illuminate\Database\Migrations\Migrator
         );
 		return $migration;
     }
+
+    public function rollback($paths = [], array $options = [])
+    {
+        $migration = $options['migration'] ?? null;
+        if ($migration !== null) {
+            $migrations = [
+                [
+                    'migration' => $migration,
+                ]
+            ];
+        } else {
+            // We want to pull in the last batch of migrations that ran on the previous
+            // migration operation. We'll then reverse those migrations and run each
+            // of them "down" to reverse the last migration "operation" which ran.
+            $migrations = $this->getMigrationsForRollback($options);
+        }
+
+        if (count($migrations) === 0) {
+            $this->note('<info>Nothing to rollback.</info>');
+
+            return [];
+        }
+        
+        return $this->rollbackMigrations($migrations, $paths, $options);
+    }
 }
