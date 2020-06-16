@@ -2,14 +2,14 @@
 
 namespace Hyde1\EloquentMigrations\Command;
 
+use Illuminate\Database\Console\Migrations\TableGuesser;
+use Illuminate\Database\Migrations\MigrationCreator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
-use Hyde1\EloquentMigrations\Migrations\MigrationCreator;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
-use Illuminate\Support\Composer;
 
 class CreateMigration extends AbstractCommand
 {
@@ -18,7 +18,7 @@ class CreateMigration extends AbstractCommand
 	/**
      * The migration creator instance.
      *
-     * @var \Illuminate\Database\Migrations\MigrationCreator
+     * @var MigrationCreator
      */
     protected $creator;
 
@@ -33,7 +33,7 @@ class CreateMigration extends AbstractCommand
 
 		parent::configure();
 
-		$this->creator = new MigrationCreator(new Filesystem);
+		$this->creator = new MigrationCreator(new Filesystem, __DIR__.'/../../data/stubs');
 	}
 
 	public function execute(InputInterface $input, OutputInterface $output)
@@ -48,7 +48,7 @@ class CreateMigration extends AbstractCommand
 			$create = true;
 		}
         if (! $table) {
-			[$table, $create] = \Illuminate\Database\Console\Migrations\TableGuesser::guess($name);
+			[$table, $create] = TableGuesser::guess($name);
 		}
 
 		$this->writeMigration($name, $table, $create);
