@@ -3,6 +3,7 @@
 namespace Hyde1\EloquentMigrations\Command;
 
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
@@ -71,7 +72,7 @@ abstract class AbstractCommand extends Command
 
 	protected function table($headers, $contents)
 	{
-		$table = new \Symfony\Component\Console\Helper\Table($this->output);
+		$table = new Table($this->output);
 		$table->setHeaders($headers)
 			->setRows($contents)
 			->render();

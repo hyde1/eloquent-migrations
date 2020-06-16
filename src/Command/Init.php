@@ -23,6 +23,8 @@ class Init extends Command
 	{
 		$path = $this->createPath($input, $output);
 		$this->createConfig($path, $output);
+
+		return 0;
 	}
 
 	protected function createPath(InputInterface $input, OutputInterface $output):string

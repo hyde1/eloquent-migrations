@@ -48,6 +48,8 @@ class RunSeed extends AbstractCommand
 		$end = microtime(true);
         $output->writeln('');
         $output->writeln('<comment>All seed completed. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
+
+        return 0;
 	}
 
     protected function runSeed($seed = null)

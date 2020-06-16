@@ -47,7 +47,7 @@ class Migrate extends AbstractCommand
 		$this->bootstrap($input, $output);
 
 		if (! $this->confirmToProceed()) {
-            return;
+            return 0;
         }
 
 		$this->repository = new DatabaseMigrationRepository($this->getDb(), $this->getMigrationTable());
@@ -63,5 +63,7 @@ class Migrate extends AbstractCommand
 				'pretend' => $this->input->getOption('dry-run'),
 				'step' => (int)$this->input->getOption('step'),
 			]);
+
+		return 0;
 	}
 }

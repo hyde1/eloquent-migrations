@@ -2,15 +2,12 @@
 
 namespace Hyde1\EloquentMigrations\Command;
 
+use Illuminate\Support\Collection;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
 use Hyde1\EloquentMigrations\Migrations\Migrator;
 use Illuminate\Database\Migrations\DatabaseMigrationRepository;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Str;
-use Illuminate\Support\Composer;
 
 class Status extends AbstractCommand
 {
@@ -57,6 +54,7 @@ class Status extends AbstractCommand
 			$output->writeln('<error>No migrations found</error>');
 		}
 
+		return 0;
 	}
 
 	/**
@@ -64,11 +62,11 @@ class Status extends AbstractCommand
 	 *
 	 * @param  array  $ran
 	 * @param  array  $batches
-	 * @return \Illuminate\Support\Collection
+	 * @return Collection
 	 */
 	protected function getStatusFor(array $ran, array $batches)
 	{
-		return \Illuminate\Support\Collection::make($this->getAllMigrationFiles())
+		return Collection::make($this->getAllMigrationFiles())
 			->map(function ($migration) use ($ran, $batches) {
 				$migrationName = $this->migrator->getMigrationName($migration);
 

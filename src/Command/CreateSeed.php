@@ -54,6 +54,8 @@ class CreateSeed extends AbstractCommand
 			));
 		}
 		$output->writeln("<info>Seed created</info> $path");
+
+		return 0;
 	}
 
 	protected function getClassName():string

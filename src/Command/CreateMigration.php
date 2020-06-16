@@ -52,16 +52,19 @@ class CreateMigration extends AbstractCommand
 		}
 
 		$this->writeMigration($name, $table, $create);
+
+		return 0;
 	}
 
 	/**
 	 * Write the migration file to disk.
 	 *
-	 * @param  string  $name
-	 * @param  string  $table
-	 * @param  bool    $create
+	 * @param string $name
+	 * @param string $table
+	 * @param bool $create
 	 * @return string
-	*/
+	 * @throws \Exception
+	 */
 	protected function writeMigration($name, $table, $create)
 	{
 		$file = $this->creator->create(

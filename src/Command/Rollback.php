@@ -54,5 +54,7 @@ class Rollback extends AbstractCommand
 				'step' => (int)$this->input->getOption('step'),
 				'migration' => $this->input->getOption('migration'),
 			]);
+
+		return 0;
 	}
 }

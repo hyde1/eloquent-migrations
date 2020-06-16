@@ -36,7 +36,7 @@ class FreshMigration extends AbstractCommand
 		$this->bootstrap($input, $output);
 
 		if (! $this->confirmToProceed()) {
-            return;
+            return 1;
         }
 
 		$database = $this->input->getOption('database');
@@ -66,6 +66,8 @@ class FreshMigration extends AbstractCommand
 				'--force' => true,
 			]));
 		}
+
+		return 0;
 	}
 
     /**
