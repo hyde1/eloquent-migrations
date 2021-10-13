@@ -7,9 +7,9 @@ use Illuminate\Database\Schema\Builder;
 
 abstract class Migration extends \Illuminate\Database\Migrations\Migration
 {
-    public ?Connection $db = null;
+    public Connection $db;
 
-    protected function db(): ?Connection
+    protected function db(): Connection
     {
         return $this->db;
     }
