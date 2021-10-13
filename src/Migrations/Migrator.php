@@ -27,7 +27,7 @@ class Migrator extends \Illuminate\Database\Migrations\Migrator
      */
     protected function resolvePath(string $path)
     {
-        $migration = parent::resolve($path);
+        $migration = parent::resolvePath($path);
         $migration->db = $this->resolveConnection(
             $migration->getConnection()
         );
