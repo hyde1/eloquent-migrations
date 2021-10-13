@@ -19,6 +19,21 @@ class Migrator extends \Illuminate\Database\Migrations\Migrator
         return $migration;
     }
 
+    /**
+     * Resolve a migration instance from a migration path.
+     *
+     * @param  string  $path
+     * @return object
+     */
+    protected function resolvePath(string $path)
+    {
+        $migration = parent::resolve($path);
+        $migration->db = $this->resolveConnection(
+            $migration->getConnection()
+        );
+        return $migration;
+    }
+
     public function rollback($paths = [], array $options = [])
     {
         $migration = $options['migration'] ?? null;
