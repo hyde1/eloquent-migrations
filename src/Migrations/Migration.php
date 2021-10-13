@@ -7,22 +7,15 @@ use Illuminate\Database\Schema\Builder;
 
 abstract class Migration extends \Illuminate\Database\Migrations\Migration
 {
-	/** @var Connection */
-	public $db;
+    public Connection $db;
 
-	/**
-	 * @return Connection
-	 */
-	protected function db(): Connection
-	{
-		return $this->db;
-	}
+    protected function db(): Connection
+    {
+        return $this->db;
+    }
 
-	/**
-	 * @return Builder
-	 */
-	protected function schema(): Builder
-	{
-		return $this->db()->getSchemaBuilder();
-	}
+    protected function schema(): Builder
+    {
+        return $this->db()->getSchemaBuilder();
+    }
 }

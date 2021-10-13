@@ -12,11 +12,11 @@ class Migrator extends \Illuminate\Database\Migrations\Migrator
      */
     public function resolve($file)
     {
-		$migration = parent::resolve($file);
-		$migration->db = $this->resolveConnection(
+        $migration = parent::resolve($file);
+        $migration->db = $this->resolveConnection(
             $migration->getConnection()
         );
-		return $migration;
+        return $migration;
     }
 
     public function rollback($paths = [], array $options = [])
@@ -26,7 +26,7 @@ class Migrator extends \Illuminate\Database\Migrations\Migrator
             $migrations = [
                 [
                     'migration' => $migration,
-                ]
+                ],
             ];
         } else {
             // We want to pull in the last batch of migrations that ran on the previous
@@ -40,7 +40,7 @@ class Migrator extends \Illuminate\Database\Migrations\Migrator
 
             return [];
         }
-        
+
         return $this->rollbackMigrations($migrations, $paths, $options);
     }
 }
