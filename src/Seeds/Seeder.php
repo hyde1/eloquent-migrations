@@ -11,7 +11,7 @@ abstract class Seeder
      *
      * @var bool
      */
-    public $withinTransaction = true;
+    public bool $withinTransaction = true;
 
     /**
      * Return array of Seeds that needs to be run before

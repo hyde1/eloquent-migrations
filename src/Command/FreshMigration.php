@@ -25,7 +25,7 @@ class FreshMigration extends AbstractCommand
             ->addOption('drop-types', null, InputOption::VALUE_NONE, 'Drop all tables and types (Postgres only)')
             ->addOption('force', null, InputOption::VALUE_NONE, 'Force the operation to run when in production')
             ->addOption('seed', null, InputOption::VALUE_NONE, 'Indicates if the seed task should be re-run')
-            ->addOption('seeder', null, InputOption::VALUE_OPTIONAL, 'Which root seeder should be usedWhich root seeder should be used??')
+            ->addOption('seeder', null, InputOption::VALUE_OPTIONAL, 'Which root seeder should be used')
             ->setHelp('Drop all tables and re-run all migrations' . PHP_EOL);
 
         parent::configure();
