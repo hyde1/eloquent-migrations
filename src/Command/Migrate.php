@@ -32,6 +32,7 @@ class Migrate extends AbstractCommand
     {
         $this
             ->setDescription('Run migrations')
+            ->addOption('database', '-d', InputOption::VALUE_OPTIONAL, 'The database connection to use')
             ->addOption('dry-run', 'x', InputOption::VALUE_NONE, 'Dump query to standard output instead of executing it')
             ->addOption('step', 's', InputOption::VALUE_REQUIRED, 'Force the migrations to be run so they can be rolled back individually', 1)
             ->addOption('force', null, InputOption::VALUE_NONE, 'Force the operation to run when in production')
@@ -51,17 +52,33 @@ class Migrate extends AbstractCommand
         $this->repository = new DatabaseMigrationRepository($this->getDb(), $this->getMigrationTable());
         $this->migrator = new Migrator($this->repository, $this->getDb(), new Filesystem());
 
-        if (! $this->migrator->repositoryExists()) {
-            $this->repository->createRepository();
-            $output->writeln('<info>Migration table created successfully.</info>');
-        }
+        $this->migrator->usingConnection($this->input->getOption('database'), function () use ($output, $input) {
+            $this->prepareDatabase();
 
-        $this->migrator->setOutput(new OutputStyle($input, $output))
-            ->run([$this->getMigrationPath()], [
-                'pretend' => $this->input->getOption('dry-run'),
-                'step' => (int)$this->input->getOption('step'),
-            ]);
+            // Next, we will check to see if a path option has been defined. If it has
+            // we will use the path relative to the root of this installation folder
+            // so that migrations may be run for any path within the applications.
+            $this->migrator->setOutput(new OutputStyle($input, $output))
+                ->run([$this->getMigrationPath()], [
+                    'pretend' => $this->input->getOption('dry-run'),
+                    'step' => (int)$this->input->getOption('step'),
+                ]);
+        });
 
         return 0;
+    }
+
+    /**
+     * Prepare the migration database for running.
+     *
+     * @return void
+     */
+    protected function prepareDatabase()
+    {
+        if (! $this->migrator->repositoryExists()) {
+            $this->call('migrate:install', array_filter([
+                '--database' => $this->input->getOption('database'),
+            ]));
+        }
     }
 }
