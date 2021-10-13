@@ -3,6 +3,7 @@
 namespace Hyde1\EloquentMigrations\Seeds;
 
 use Illuminate\Database\Connection;
+use Illuminate\Database\Query\Builder;
 
 abstract class Seeder
 {    /**
@@ -12,56 +13,56 @@ abstract class Seeder
      */
     public $withinTransaction = true;
 
-	/**
-	 * Return array of Seeds that needs to be run before
-	 *
-	 * @return array 
-	 */
-	public function getDependencies()
-	{
-		return [];
-	}
+    /**
+     * Return array of Seeds that needs to be run before
+     *
+     * @return array
+     */
+    public function getDependencies(): array
+    {
+        return [];
+    }
 
-	/** @var Connection */
-	private $db;
+    /** @var Connection */
+    private Connection $db;
 
-	public function setDb($db)
-	{
-		$this->db = $db;
-	}
+    public function setDb(Connection $db)
+    {
+        $this->db = $db;
+    }
 
-	/**
-	 * @return Connection
-	 */
-	protected function getDb()
-	{
-		return $this->db;
-	}
+    /**
+     * @return Connection
+     */
+    protected function getDb(): Connection
+    {
+        return $this->db;
+    }
 
-	/**
-	 * @return Connection
-	 */
-	protected function db()
-	{
-		return $this->db;
-	}
+    /**
+     * @return Connection
+     */
+    protected function db(): Connection
+    {
+        return $this->db;
+    }
 
-	/**
-	 * @return string
-	 */
-	public function getName()
+    /**
+     * @return string
+     */
+    public function getName(): string
     {
         return get_class($this);
     }
 
-	public function table(string $name)
-	{
-		return $this->getDb()->table($name);
-	}
-	/**
+    public function table(string $name): Builder
+    {
+        return $this->getDb()->table($name);
+    }
+    /**
      * Run the database seeds.
      *
      * @return void
      */
-	abstract public function run();
+    abstract public function run(): void;
 }

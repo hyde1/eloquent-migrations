@@ -1,35 +1,34 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Hyde1\EloquentMigrations\Migrations\Migration;
 
 class DummyClass extends Migration
 {
-	/**
-	 * Enables, if supported, wrapping the migration within a transaction.
-	 *
-	 * @var bool
-	 */
-	//public $withinTransaction = false;
-	// Un comment if you want the migration not to run inside a transaction
+    /**
+     * Enables, if supported, wrapping the migration within a transaction.
+     *
+     * @var bool
+     */
+    //public $withinTransaction = false;
+    // Un comment if you want the migration not to run inside a transaction
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
-	public function up()
-	{
-		//
-	}
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        //
+    }
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
-	public function down()
-	{
-		//
-	}
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        //
+    }
 }

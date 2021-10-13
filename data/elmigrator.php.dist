@@ -17,7 +17,7 @@ return [
 	'default_environment' => 'developpment',
 	'paths' => [
 		'migrations' => 'database/migrations',
-		'seeds' => 'database/seeds',
+		'seeds' => 'database/seeders',
 	],
 	'migration_table' => 'el_migrations',
 	'db' => $capsule->getDatabaseManager()

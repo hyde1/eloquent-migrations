@@ -1,38 +1,40 @@
 <?php
 
+namespace Database\Seeders;
+
 use Hyde1\EloquentMigrations\Seeds\Seeder;
 
 class DummySeeder extends Seeder
 {
-	/**
-	 * Return array of Seeds that needs to be run before
-	 *
-	 * @return array
-	 */
-	 /* Uncomment to add dependencies
-	public function getDependencies()
-	{
-		return [
-			'MySeeder',
-			'UserSeeder'
-		];
-	}
-	*/
-	/**
-	 * Enables, if supported, wrapping the migration within a transaction.
-	 * Uncomment to prevent transaction
-	 *
-	 * @var bool
-	 */
-	//public $withinTransaction = false;
+    /**
+     * Return array of Seeds that needs to be run before
+     *
+     * @return array
+     */
+    /* Uncomment to add dependencies
+    public function getDependencies()
+    {
+       return [
+           'MySeeder',
+           'UserSeeder'
+       ];
+    }
+    */
+    /**
+     * Enables, if supported, wrapping the migration within a transaction.
+     * Uncomment to prevent transaction
+     *
+     * @var bool
+     */
+    //public $withinTransaction = false;
 
-	/**
-	 * Run the database seeds.
-	 *
-	 * @return void
-	 */
-	public function run()
-	{
-		// Insert your seed data here
-	}
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        // Insert your seed data here
+    }
 }

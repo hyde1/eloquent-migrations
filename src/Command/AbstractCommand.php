@@ -13,81 +13,81 @@ use Symfony\Component\Console\Input\ArrayInput;
 
 abstract class AbstractCommand extends Command
 {
-	/** @var array */
-	protected $config;
+    /** @var array */
+    protected $config;
 
-	/** @var InputInterface */
-	protected $input;
+    /** @var InputInterface */
+    protected $input;
 
-	/** @var OutputInterface */
-	protected $output;
+    /** @var OutputInterface */
+    protected $output;
 
-	/** @var string */
-	protected $environment;
+    /** @var string */
+    protected $environment;
 
-	protected function configure()
-	{
-		$this->addOption('--config', '-c', InputOption::VALUE_REQUIRED, 'The configuration file to load', 'elmigrator.php');
-		$this->addOption('--env', '-e', InputOption::VALUE_OPTIONAL, 'Choose an environment', null);
-	}
+    protected function configure()
+    {
+        $this->addOption('--config', '-c', InputOption::VALUE_REQUIRED, 'The configuration file to load', 'elmigrator.php');
+        $this->addOption('--env', '-e', InputOption::VALUE_OPTIONAL, 'Choose an environment', null);
+    }
 
-	protected function bootstrap(InputInterface $input, OutputInterface $output)
-	{
-		$this->input = $input;
-		$this->output = $output;
-		$this->loadConfig($input);
-	}
+    protected function bootstrap(InputInterface $input, OutputInterface $output)
+    {
+        $this->input = $input;
+        $this->output = $output;
+        $this->loadConfig($input);
+    }
 
-	protected function loadConfig(InputInterface $input)
-	{
-		$configfile = (string)$input->getOption('config');
-		$this->config = require getcwd() . DIRECTORY_SEPARATOR . $configfile;
-		$this->environment = $input->getOption('env') ?? $this->config['default_environment'];
-	}
+    protected function loadConfig(InputInterface $input)
+    {
+        $configfile = (string)$input->getOption('config');
+        $this->config = require getcwd() . DIRECTORY_SEPARATOR . $configfile;
+        $this->environment = $input->getOption('env') ?? $this->config['default_environment'];
+    }
 
-	protected function getMigrationPath():string
-	{
-		return (string)$this->config['paths']['migrations'];
-	}
+    protected function getMigrationPath(): string
+    {
+        return (string)$this->config['paths']['migrations'];
+    }
 
-	protected function getSeedPath():string
-	{
-		return (string)$this->config['paths']['seeds'];
-	}
+    protected function getSeedPath(): string
+    {
+        return (string)$this->config['paths']['seeds'];
+    }
 
-	protected function getDb()
-	{
-		return $this->config['db'];
-	}
+    protected function getDb()
+    {
+        return $this->config['db'];
+    }
 
-	protected function environment()
-	{
-		return $this->environment;
-	}
+    protected function environment()
+    {
+        return $this->environment;
+    }
 
-	protected function getMigrationTable():string
-	{
-		return (string)$this->config['migration_table'];
-	}
+    protected function getMigrationTable(): string
+    {
+        return (string)$this->config['migration_table'];
+    }
 
-	protected function table($headers, $contents)
-	{
-		$table = new Table($this->output);
-		$table->setHeaders($headers)
-			->setRows($contents)
-			->render();
-	}
+    protected function table($headers, $contents)
+    {
+        $table = new Table($this->output);
+        $table->setHeaders($headers)
+            ->setRows($contents)
+            ->render();
+    }
 
-	public function confirm($message)
-	{
-		$helper = $this->getHelper('question');
-		$question = new ConfirmationQuestion($message, false);
+    public function confirm($message)
+    {
+        $helper = $this->getHelper('question');
+        $question = new ConfirmationQuestion($message, false);
 
-		if (!$helper->ask($this->input, $this->output, $question)) {
-			return false;
-		}
-		return true;
-	}
+        if (!$helper->ask($this->input, $this->output, $question)) {
+            return false;
+        }
+        return true;
+    }
 
     /**
      * Confirm before proceeding with the action.
@@ -128,7 +128,7 @@ abstract class AbstractCommand extends Command
         };
     }
 
-	/**
+    /**
      * Call another console command.
      *
      * @param  string  $command
