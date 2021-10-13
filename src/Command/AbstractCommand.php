@@ -2,6 +2,7 @@
 
 namespace Hyde1\EloquentMigrations\Command;
 
+use Illuminate\Database\DatabaseManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
@@ -55,7 +56,7 @@ abstract class AbstractCommand extends Command
         return (string)$this->config['paths']['seeds'];
     }
 
-    protected function getDb()
+    protected function getDb(): DatabaseManager
     {
         return $this->config['db'];
     }
