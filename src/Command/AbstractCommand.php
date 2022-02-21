@@ -14,6 +14,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 
 abstract class AbstractCommand extends Command
 {
+    protected string $configFile;
     protected array $config;
     protected InputInterface $input;
     protected OutputInterface $output;
@@ -36,8 +37,8 @@ abstract class AbstractCommand extends Command
 
     protected function loadConfig(InputInterface $input): void
     {
-        $configfile = (string)$input->getOption('config');
-        $this->config = require getcwd() . DIRECTORY_SEPARATOR . $configfile;
+        $this->configFile = (string)$input->getOption('config');
+        $this->config = require getcwd() . DIRECTORY_SEPARATOR . $this->configFile;
         $this->environment = $input->getOption('env') ?? $this->config['default_environment'];
         $this->database = $input->getOption('database') ?? $this->config['database'] ?? null;
     }
@@ -135,6 +136,7 @@ abstract class AbstractCommand extends Command
     public function call(string $command, array $arguments = []): int
     {
         $arguments['command'] = $command;
+        $arguments['--config'] = $this->configFile;
         return $this->getApplication()->find($command)->run(
             new ArrayInput($arguments),
             $this->output
