@@ -15,7 +15,6 @@ class MigrateInstall extends AbstractCommand
     {
         $this
             ->setDescription('Create the migration repository')
-            ->addOption('database', '-d', InputOption::VALUE_OPTIONAL, 'The database connection to use')
             ->addOption('force', null, InputOption::VALUE_NONE, 'Force the operation to run when in production')
             ->setHelp('Create the migration repository' . PHP_EOL);
 
@@ -31,7 +30,7 @@ class MigrateInstall extends AbstractCommand
         }
 
         $repository = new DatabaseMigrationRepository($this->getDb(), $this->getMigrationTable());
-        $repository->setSource($this->input->getOption('database'));
+        $repository->setSource($this->database);
         $repository->createRepository();
 
         $this->output->writeln('<info>Migration table created successfully.</info>');

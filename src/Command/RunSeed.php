@@ -18,7 +18,6 @@ class RunSeed extends AbstractCommand
         $this
             ->setDescription('Run seed')
             ->addOption('--seed', '-s', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'What is the name of the seeder?')
-            ->addOption('database', '-d', InputOption::VALUE_OPTIONAL, 'The database connection to use')
             ->addOption('force', null, InputOption::VALUE_NONE, 'Force the operation to run when in production')
             ->setHelp('Run all (or specified) seeders' . PHP_EOL);
 
@@ -29,7 +28,7 @@ class RunSeed extends AbstractCommand
     {
         $this->bootstrap($input, $output);
         if (!$this->confirmToProceed()) {
-            return;
+            return 1;
         }
 
         $this->getDb();
@@ -74,7 +73,7 @@ class RunSeed extends AbstractCommand
 
     protected function executeSeed(Seeder $seeder)
     {
-        $db = $this->getDb()->connection($this->input->getOption('database'));
+        $db = $this->getDb()->connection($this->database);
         $seeder->setDb($db);
         $this->output->writeln("<info>" . $seeder->getName() . "</info> seeding");
         $start = microtime(true);

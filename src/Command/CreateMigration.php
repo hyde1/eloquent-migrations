@@ -13,63 +13,59 @@ use Illuminate\Support\Str;
 
 class CreateMigration extends AbstractCommand
 {
-	protected static $defaultName = 'create';
+    protected static $defaultName = 'create';
+    protected MigrationCreator $creator;
 
-	/**
-     * The migration creator instance.
-     *
-     * @var MigrationCreator
-     */
-    protected $creator;
+    protected function configure()
+    {
+        $this
+            ->setDescription('Create a new migration')
+            ->addArgument('name', InputArgument::REQUIRED, 'The migration name')
+            ->addOption('--create', null, InputOption::VALUE_REQUIRED, 'The table to create')
+            ->addOption('--table', null, InputOption::VALUE_REQUIRED, 'The table to migrate')
+            ->setHelp('Creates a new migration' . PHP_EOL);
 
-	protected function configure()
-	{
-		$this
-			->setDescription('Create a new migration')
-			->addArgument('name', InputArgument::REQUIRED, 'The migration name')
-			->addOption('--create', null, InputOption::VALUE_REQUIRED, 'The table to create')
-			->addOption('--table', null, InputOption::VALUE_REQUIRED, 'The table to migrate')
-			->setHelp('Creates a new migration'.PHP_EOL);
+        parent::configure();
 
-		parent::configure();
+        $this->creator = new MigrationCreator(new Filesystem(), __DIR__ . '/../../data/stubs');
+    }
 
-		$this->creator = new MigrationCreator(new Filesystem, __DIR__.'/../../data/stubs');
-	}
+    public function execute(InputInterface $input, OutputInterface $output)
+    {
+        $this->bootstrap($input, $output);
 
-	public function execute(InputInterface $input, OutputInterface $output)
-	{
-		$this->bootstrap($input, $output);
-
-		$name = Str::snake(trim($this->input->getArgument('name')));
-		$table = $this->input->getOption('table');
-		$create = $this->input->getOption('create') ?: false;
-		if (! $table && is_string($create)) {
-			$table = $create;
-			$create = true;
-		}
+        $name = Str::snake(trim($this->input->getArgument('name')));
+        $table = $this->input->getOption('table');
+        $create = $this->input->getOption('create') ?: false;
+        if (! $table && is_string($create)) {
+            $table = $create;
+            $create = true;
+        }
         if (! $table) {
-			[$table, $create] = TableGuesser::guess($name);
-		}
+            [$table, $create] = TableGuesser::guess($name);
+        }
 
-		$this->writeMigration($name, $table, $create);
+        $this->writeMigration($name, $table, $create);
 
-		return 0;
-	}
+        return 0;
+    }
 
-	/**
-	 * Write the migration file to disk.
-	 *
-	 * @param string $name
-	 * @param string $table
-	 * @param bool $create
-	 * @return string
-	 * @throws \Exception
-	 */
-	protected function writeMigration($name, $table, $create)
-	{
-		$file = $this->creator->create(
-			$name, $this->getMigrationPath(), $table, $create
-		);
-		$this->output->writeln("<info>Created Migration:</info> {$file}");
-	}
+    /**
+     * Write the migration file to disk.
+     *
+     * @param string $name
+     * @param string $table
+     * @param bool $create
+     * @throws \Exception
+     */
+    protected function writeMigration(string $name, string $table, bool $create)
+    {
+        $file = $this->creator->create(
+            $name,
+            $this->getMigrationPath(),
+            $table,
+            $create
+        );
+        $this->output->writeln("<info>Created Migration:</info> {$file}");
+    }
 }

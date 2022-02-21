@@ -2,48 +2,44 @@
 
 namespace Hyde1\EloquentMigrations\Command;
 
+use Closure;
 use Illuminate\Database\DatabaseManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Input\ArrayInput;
 
 abstract class AbstractCommand extends Command
 {
-    /** @var array */
-    protected $config;
-
-    /** @var InputInterface */
-    protected $input;
-
-    /** @var OutputInterface */
-    protected $output;
-
-    /** @var string */
-    protected $environment;
+    protected array $config;
+    protected InputInterface $input;
+    protected OutputInterface $output;
+    protected string $environment;
+    protected ?string $database;
 
     protected function configure()
     {
-        $this->addOption('--config', '-c', InputOption::VALUE_REQUIRED, 'The configuration file to load', 'elmigrator.php');
-        $this->addOption('--env', '-e', InputOption::VALUE_OPTIONAL, 'Choose an environment', null);
+        $this->addOption('config', '-c', InputOption::VALUE_REQUIRED, 'The configuration file to load', 'elmigrator.php');
+        $this->addOption('env', '-e', InputOption::VALUE_OPTIONAL, 'Choose an environment');
+        $this->addOption('database', '-d', InputOption::VALUE_OPTIONAL, 'The database connection to use');
     }
 
-    protected function bootstrap(InputInterface $input, OutputInterface $output)
+    protected function bootstrap(InputInterface $input, OutputInterface $output): void
     {
         $this->input = $input;
         $this->output = $output;
         $this->loadConfig($input);
     }
 
-    protected function loadConfig(InputInterface $input)
+    protected function loadConfig(InputInterface $input): void
     {
         $configfile = (string)$input->getOption('config');
         $this->config = require getcwd() . DIRECTORY_SEPARATOR . $configfile;
         $this->environment = $input->getOption('env') ?? $this->config['default_environment'];
+        $this->database = $input->getOption('database') ?? $this->config['database'] ?? null;
     }
 
     protected function getMigrationPath(): string
@@ -61,7 +57,7 @@ abstract class AbstractCommand extends Command
         return $this->config['db'];
     }
 
-    protected function environment()
+    protected function environment(): string
     {
         return $this->environment;
     }
@@ -71,7 +67,7 @@ abstract class AbstractCommand extends Command
         return (string)$this->config['migration_table'];
     }
 
-    protected function table($headers, $contents)
+    protected function table(array $headers, array $contents)
     {
         $table = new Table($this->output);
         $table->setHeaders($headers)
@@ -79,7 +75,7 @@ abstract class AbstractCommand extends Command
             ->render();
     }
 
-    public function confirm($message)
+    public function confirm(string $message): bool
     {
         $helper = $this->getHelper('question');
         $question = new ConfirmationQuestion($message, false);
@@ -95,14 +91,14 @@ abstract class AbstractCommand extends Command
      *
      * This method only asks for confirmation in production.
      *
-     * @param  string  $warning
-     * @param  \Closure|bool|null  $callback
+     * @param string $warning
+     * @param  Closure|bool|null  $callback
      * @return bool
      */
-    public function confirmToProceed($warning = 'Application In Production!', $callback = null)
+    public function confirmToProceed(string $warning = 'Application In Production!', $callback = null): bool
     {
         $callback = is_null($callback) ? $this->getDefaultConfirmCallback() : $callback;
-        $shouldConfirm = $callback instanceof \Closure ? call_user_func($callback) : $callback;
+        $shouldConfirm = $callback instanceof Closure ? call_user_func($callback) : $callback;
         if ($shouldConfirm) {
             if ($this->input->hasOption('force') && $this->input->getOption('force')) {
                 return true;
@@ -120,9 +116,9 @@ abstract class AbstractCommand extends Command
     /**
      * Get the default confirmation callback.
      *
-     * @return \Closure
+     * @return Closure
      */
-    protected function getDefaultConfirmCallback()
+    protected function getDefaultConfirmCallback(): Closure
     {
         return function () {
             return $this->environment() === 'production';
@@ -132,15 +128,16 @@ abstract class AbstractCommand extends Command
     /**
      * Call another console command.
      *
-     * @param  string  $command
+     * @param string $command
      * @param  array   $arguments
      * @return int
      */
-    public function call($command, array $arguments = [])
+    public function call(string $command, array $arguments = []): int
     {
         $arguments['command'] = $command;
         return $this->getApplication()->find($command)->run(
-            new ArrayInput($arguments), $this->output
+            new ArrayInput($arguments),
+            $this->output
         );
     }
 }

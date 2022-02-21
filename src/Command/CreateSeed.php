@@ -10,12 +10,6 @@ use Illuminate\Database\Migrations\DatabaseMigrationRepository;
 class CreateSeed extends AbstractCommand
 {
     protected static $defaultName = 'seed:create';
-
-    /**
-     * The migration repository
-     *
-     * @var DatabaseMigrationRepository
-     */
     protected DatabaseMigrationRepository $repository;
 
     protected function configure()

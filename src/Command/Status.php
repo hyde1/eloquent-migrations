@@ -7,31 +7,21 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Hyde1\EloquentMigrations\Migrations\Migrator;
 use Illuminate\Database\Migrations\DatabaseMigrationRepository;
+use Illuminate\Database\Migrations\Migrator as BaseMigrator;
 use Illuminate\Filesystem\Filesystem;
 
 class Status extends AbstractCommand
 {
     protected static $defaultName = 'status';
 
-    /**
-     * The migration creator instance.
-     *
-     * @var \Illuminate\Database\Migrations\Migrator
-     */
-    protected $migrator;
-
-    /**
-     * The migration repository
-     *
-     * @var DatabaseMigrationRepository
-     */
-    protected $repository;
+    protected BaseMigrator $migrator;
+    protected DatabaseMigrationRepository $repository;
 
     protected function configure()
     {
         $this
             ->setDescription('Display migration status')
-            ->setHelp('Show the status of each migration'.PHP_EOL);
+            ->setHelp('Show the status of each migration' . PHP_EOL);
 
         parent::configure();
     }
@@ -64,7 +54,7 @@ class Status extends AbstractCommand
      * @param  array  $batches
      * @return Collection
      */
-    protected function getStatusFor(array $ran, array $batches)
+    protected function getStatusFor(array $ran, array $batches): Collection
     {
         return Collection::make($this->getAllMigrationFiles())
             ->map(function ($migration) use ($ran, $batches) {
@@ -77,11 +67,11 @@ class Status extends AbstractCommand
     }
 
     /**
-     * Get an array of all of the migration files.
+     * Get an array of all the migration files.
      *
      * @return array
      */
-    protected function getAllMigrationFiles()
+    protected function getAllMigrationFiles(): array
     {
         return $this->migrator->getMigrationFiles([$this->getMigrationPath()]);
     }

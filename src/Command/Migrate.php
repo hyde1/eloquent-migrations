@@ -8,31 +8,20 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Hyde1\EloquentMigrations\Migrations\Migrator;
 use Illuminate\Database\Migrations\DatabaseMigrationRepository;
+use Illuminate\Database\Migrations\Migrator as BaseMigrator;
 use Illuminate\Filesystem\Filesystem;
 
 class Migrate extends AbstractCommand
 {
     protected static $defaultName = 'migrate';
 
-    /**
-     * The migration creator instance.
-     *
-     * @var \Illuminate\Database\Migrations\Migrator
-     */
-    protected \Illuminate\Database\Migrations\Migrator $migrator;
-
-    /**
-     * The migration repository
-     *
-     * @var DatabaseMigrationRepository
-     */
+    protected BaseMigrator $migrator;
     protected DatabaseMigrationRepository $repository;
 
     protected function configure()
     {
         $this
             ->setDescription('Run migrations')
-            ->addOption('database', '-d', InputOption::VALUE_OPTIONAL, 'The database connection to use')
             ->addOption('dry-run', 'x', InputOption::VALUE_NONE, 'Dump query to standard output instead of executing it')
             ->addOption('step', 's', InputOption::VALUE_REQUIRED, 'Force the migrations to be run so they can be rolled back individually', 1)
             ->addOption('force', null, InputOption::VALUE_NONE, 'Force the operation to run when in production')
@@ -52,7 +41,7 @@ class Migrate extends AbstractCommand
         $this->repository = new DatabaseMigrationRepository($this->getDb(), $this->getMigrationTable());
         $this->migrator = new Migrator($this->repository, $this->getDb(), new Filesystem());
 
-        $this->migrator->usingConnection($this->input->getOption('database'), function () use ($output, $input) {
+        $this->migrator->usingConnection($this->database, function () use ($output, $input) {
             $this->prepareDatabase();
 
             // Next, we will check to see if a path option has been defined. If it has
@@ -77,7 +66,7 @@ class Migrate extends AbstractCommand
     {
         if (! $this->migrator->repositoryExists()) {
             $this->call('migrate:install', array_filter([
-                '--database' => $this->input->getOption('database'),
+                '--database' => $this->database,
             ]));
         }
     }

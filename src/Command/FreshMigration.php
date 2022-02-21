@@ -20,7 +20,6 @@ class FreshMigration extends AbstractCommand
     {
         $this
             ->setDescription('Drop all tables and re-run all migrations')
-            ->addOption('database', '-d', InputOption::VALUE_OPTIONAL, 'The database connection to use')
             ->addOption('drop-views', null, InputOption::VALUE_NONE, 'Drop all tables and views')
             ->addOption('drop-types', null, InputOption::VALUE_NONE, 'Drop all tables and types (Postgres only)')
             ->addOption('force', null, InputOption::VALUE_NONE, 'Force the operation to run when in production')
@@ -39,29 +38,27 @@ class FreshMigration extends AbstractCommand
             return 1;
         }
 
-        $database = $this->input->getOption('database');
-
         if ($this->input->getOption('drop-views')) {
-            $this->dropAllViews($database);
+            $this->dropAllViews();
             $this->output->writeln('<info>Dropped all views successfully.</info>');
         }
 
-        $this->dropAllTables($database);
+        $this->dropAllTables();
         $this->output->writeln('<info>Dropped all tables successfully.</info>');
 
         if ($this->input->getOption('drop-types')) {
-            $this->dropAllTypes($database);
+            $this->dropAllTypes();
             $this->output->writeln('<info>Dropped all types successfully.</info>');
         }
 
         $this->call('migrate', array_filter([
-            '--database' => $database,
+            '--database' => $this->database,
             '--force' => true,
         ]));
 
         if ($this->input->getOption('seed')) {
             $this->call('seed:run', array_filter([
-                '--database' => $database,
+                '--database' => $this->database,
                 '--seed' => $this->input->getOption('seeder'),
                 '--force' => true,
             ]));
@@ -73,37 +70,34 @@ class FreshMigration extends AbstractCommand
     /**
      * Drop all of the database tables.
      *
-     * @param  string  $database
      * @return void
      */
-    protected function dropAllTables($database)
+    protected function dropAllTables()
     {
-        $this->getDb()->connection($database)
+        $this->getDb()->connection($this->database)
             ->getSchemaBuilder()
             ->dropAllTables();
     }
 
     /**
-     * Drop all of the database views.
+     * Drop all database views.
      *
-     * @param  string  $database
      * @return void
      */
-    protected function dropAllViews($database)
+    protected function dropAllViews()
     {
-        $this->getDb()->connection($database)
+        $this->getDb()->connection($this->database)
                     ->getSchemaBuilder()
                     ->dropAllViews();
     }
     /**
-     * Drop all of the database types.
+     * Drop all database types.
      *
-     * @param string $database
      * @return void
      */
-    protected function dropAllTypes($database)
+    protected function dropAllTypes()
     {
-        $this->getDb()->connection($database)
+        $this->getDb()->connection($this->database)
                     ->getSchemaBuilder()
                     ->dropAllTypes();
     }
