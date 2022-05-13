@@ -86,7 +86,7 @@ class Init extends Command
 			throw new RuntimeException('Could not find bin file '. $pathBinFile);
 		}
 		
-		$contents = str_replace("__DIR__ . '/../", 'vendor/hyde1/eloquent-migrations/', $contents); 
+		$contents = str_replace("__DIR__ . '/../", "'vendor/hyde1/eloquent-migrations/", $contents); 
 		
 		$outputPathBinFile = getcwd() . DIRECTORY_SEPARATOR .'migrator';
 		$ret = file_put_contents($outputPathBinFile, $contents);
