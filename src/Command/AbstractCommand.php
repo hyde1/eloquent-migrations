@@ -41,7 +41,7 @@ abstract class AbstractCommand extends Command
         
         $pathConfigFile = getcwd() . DIRECTORY_SEPARATOR . $this->configFile;
         
-        $this->config = file_exists($pathConfigFile) ? require $pathConfigFile : (isset($_ENV['ELMIGRATOR_CONFIG']) ? $_ENV['ELMIGRATOR_CONFIG'] : null);
+        $this->config = file_exists($pathConfigFile) ? require $pathConfigFile : (isset($_ENV['ELMIGRATOR_CONFIG']) ? require getcwd() . DIRECTORY_SEPARATOR . $_ENV['ELMIGRATOR_CONFIG'] : null);
         $this->environment = $input->getOption('env') ?? $this->config['default_environment'];
         $this->database = $input->getOption('database') ?? $this->config['database'] ?? null;
         
