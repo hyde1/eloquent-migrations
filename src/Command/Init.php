@@ -6,6 +6,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
+use RuntimeException;
 
 class Init extends Command
 {
@@ -15,7 +16,7 @@ class Init extends Command
 	{
 		$this
 			->setDescription('Initialize the project')
-			->addArgument('path', InputArgument::REQUIRED, 'The path for the root directory of the project')
+			->addArgument('path', InputArgument::REQUIRED, 'The path for the root directory of the project.')
 			->setHelp('Initialize the project for Eloquent Migrations'.PHP_EOL);
 	}
 
@@ -23,6 +24,7 @@ class Init extends Command
 	{
 		$path = $this->createPath($input, $output);
 		$this->createConfig($path, $output);
+		$this->createBin($output);
 
 		return 0;
 	}
@@ -72,5 +74,30 @@ class Init extends Command
 		}
 
 		$output->writeln("<info>created</info> $outputPath");
+	}
+	
+	public function createBin(OutputInterface $output)
+	{
+	    $pathBinFile = __DIR__ .'/../../bin/elmigrator';
+	    
+	    $contents = file_get_contents($pathBinFile);
+	    
+	    if ($contents === false) {
+			throw new RuntimeException('Could not find bin file '. $pathBinFile);
+		}
+		
+		$contents = str_replace("__DIR__ . '/../", 'vendor/hyde1/eloquent-migrations/', $contents); 
+		
+		$outputPathBinFile = getcwd() . DIRECTORY_SEPARATOR .'migrator';
+		$ret = file_put_contents($outputPathBinFile, $contents);
+		
+		if ($ret === false) {
+			throw new RuntimeException(sprintf(
+				'Could not be written binary file to %s',
+				$outputPathBinFile
+			));
+		}
+		
+		$output->writeln("<info>Created</info> $outputPathBinFile");
 	}
 }
