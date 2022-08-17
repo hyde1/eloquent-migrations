@@ -27,6 +27,7 @@ $app->addCommands([
     new Command\Status(),
     new Command\CreateSeed(),
     new Command\RunSeed(),
+    new Command\CreateDatabase(),
 ]);
 
 return $app;
