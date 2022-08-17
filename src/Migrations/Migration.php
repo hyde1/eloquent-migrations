@@ -18,4 +18,7 @@ abstract class Migration extends \Illuminate\Database\Migrations\Migration
     {
         return $this->db()->getSchemaBuilder();
     }
+
+    abstract public function up(): void;
+    abstract public function down(): void;
 }
