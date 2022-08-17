@@ -47,6 +47,7 @@ class Rollback extends AbstractCommand
         $this->bootstrap($input, $output);
         $this->repository = new DatabaseMigrationRepository($this->getDb(), $this->getMigrationTable());
         $this->migrator = new Migrator($this->repository, $this->getDb(), new Filesystem());
+        $this->migrator->setOutput($output);
 
         $this->migrator->setOutput(new \Illuminate\Console\OutputStyle($input, $output))
             ->rollback([$this->getMigrationPath()], [

@@ -40,6 +40,7 @@ class Migrate extends AbstractCommand
 
         $this->repository = new DatabaseMigrationRepository($this->getDb(), $this->getMigrationTable());
         $this->migrator = new Migrator($this->repository, $this->getDb(), new Filesystem());
+        $this->migrator->setOutput($output);
 
         $this->migrator->usingConnection($this->database, function () use ($output, $input) {
             $this->prepareDatabase();

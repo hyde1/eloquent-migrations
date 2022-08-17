@@ -31,6 +31,7 @@ class Status extends AbstractCommand
         $this->bootstrap($input, $output);
         $this->repository = new DatabaseMigrationRepository($this->getDb(), $this->getMigrationTable());
         $this->migrator = new Migrator($this->repository, $this->getDb(), new Filesystem());
+        $this->migrator->setOutput($output);
 
         if (! $this->migrator->repositoryExists()) {
             throw new \RuntimeException('The migration table is not installed');
