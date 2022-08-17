@@ -17,7 +17,10 @@
 	"autoload": {
 		"psr-4": {
 			"Hyde1\\EloquentMigrations\\": "src/"
-		}
+		},
+		"files": [
+			"src/helpers.php"
+		]
 	},
 	"bin": ["bin/elmigrator"],
 	"description": "Use Eloquent migration system without Laravel"
