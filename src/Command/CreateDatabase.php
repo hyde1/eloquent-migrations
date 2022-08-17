@@ -28,7 +28,7 @@ class CreateDatabase extends AbstractCommand
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $this->bootstrap($input, $output);
-        $this->getDb()->statement('CREATE DATABASE :database', ['database' => $input->getArgument('name')]);
+        $this->getDb()->getSchemaBuilder()->createDatabase($input->getArgument('name'));
 
         return 0;
     }
