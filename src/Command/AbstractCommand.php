@@ -38,9 +38,16 @@ abstract class AbstractCommand extends Command
     protected function loadConfig(InputInterface $input): void
     {
         $this->configFile = (string)$input->getOption('config');
-        $this->config = require getcwd() . DIRECTORY_SEPARATOR . $this->configFile;
+        
+        $pathConfigFile = getcwd() . DIRECTORY_SEPARATOR . $this->configFile;
+        
+        $this->config = file_exists($pathConfigFile) ? require $pathConfigFile : (isset($_ENV['ELMIGRATOR_CONFIG']) ? require getcwd() . DIRECTORY_SEPARATOR . $_ENV['ELMIGRATOR_CONFIG'] : null);
         $this->environment = $input->getOption('env') ?? $this->config['default_environment'];
         $this->database = $input->getOption('database') ?? $this->config['database'] ?? null;
+        
+        if ($this->configFile === null) {
+            $this->output->writeln('<danger>could not find nothing configuration a file. Set throught --config option or environment variable ELMIGRATOR_CONFIG</danger>');
+        }
     }
 
     protected function getMigrationPath(): string
