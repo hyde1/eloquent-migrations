@@ -2,7 +2,7 @@
 
 use Hyde1\EloquentMigrations\Migrations\Migration;
 
-class {{ class }} extends Migration
+return new class extends Migration
 {
     /**
      * Enables, if supported, wrapping the migration within a transaction.
@@ -25,4 +25,4 @@ class {{ class }} extends Migration
     {
         //
     }
-}
+};
