@@ -15,7 +15,7 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        $this->schema()->table('{{ table }}', function (Blueprint $table) {
+        $this->schema()->table('{{ table }}', function (Blueprint $table): void {
             //
         });
     }
@@ -25,7 +25,7 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        $this->schema()->table('{{ table }}', function (Blueprint $table) {
+        $this->schema()->table('{{ table }}', function (Blueprint $table): void {
             //
         });
     }

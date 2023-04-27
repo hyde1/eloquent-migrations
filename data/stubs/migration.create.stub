@@ -15,7 +15,7 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        $this->schema()->create('{{ table }}', function (Blueprint $table) {
+        $this->schema()->create('{{ table }}', function (Blueprint $table): void {
             $table->uuid('id');
             $table->timestampsTz();
 
