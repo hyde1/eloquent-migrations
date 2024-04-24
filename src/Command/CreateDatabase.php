@@ -28,8 +28,15 @@ class CreateDatabase extends AbstractCommand
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $this->bootstrap($input, $output);
-        $this->getDb()->statement('CREATE DATABASE :database', ['database' => $input->getArgument('name')]);
+        $dbName = trim($input->getArgument('name'));
+        if (!preg_match('/^[a-zA-Z0-9_-]+$/', $dbName)) {
+            $output->writeln('<error>Invalid database name</error>');
+            return self::INVALID;
+        }
+        $this->getDb()->statement('CREATE DATABASE ' . $dbName);
+        
+        $output->writeln(sprintf('<info>Database `%s` created successfuly</info>', $dbName));
 
-        return 0;
+        return self::SUCCESS;
     }
 }
