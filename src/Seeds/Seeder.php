@@ -6,10 +6,9 @@ use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Builder;
 
 abstract class Seeder
-{    /**
+{
+    /**
      * Enables, if supported, wrapping the migration within a transaction.
-     *
-     * @var bool
      */
     public bool $withinTransaction = true;
 
@@ -23,33 +22,23 @@ abstract class Seeder
         return [];
     }
 
-    /** @var Connection */
     private Connection $db;
 
-    public function setDb(Connection $db)
+    public function setDb(Connection $db): void
     {
         $this->db = $db;
     }
 
-    /**
-     * @return Connection
-     */
     protected function getDb(): Connection
     {
         return $this->db;
     }
 
-    /**
-     * @return Connection
-     */
     protected function db(): Connection
     {
         return $this->db;
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return get_class($this);
@@ -59,10 +48,9 @@ abstract class Seeder
     {
         return $this->getDb()->table($name);
     }
+
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
     abstract public function run(): void;
 }

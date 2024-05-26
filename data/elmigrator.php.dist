@@ -4,9 +4,9 @@ $capsule = new \Illuminate\Database\Capsule\Manager();
 $capsule->addConnection([
 	'driver'    => 'pgsql',
 	'host'      => 'localhost',
-	'database'  => 'pm',
-	'username'  => 'pm',
-	'password'  => 'thepmpassword',
+	'database'  => 'mydb',
+	'username'  => 'myuser',
+	'password'  => 'mypassword',
 	'charset'   => 'utf8',
 	'collation' => 'utf8_unicode_ci',
 	'prefix'    => '',
