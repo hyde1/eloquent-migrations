@@ -34,7 +34,7 @@ class CreateDatabase extends AbstractCommand
             return self::INVALID;
         }
         $this->getDb()->statement('CREATE DATABASE ' . $dbName);
-        
+
         $output->writeln(sprintf('<info>Database `%s` created successfuly</info>', $dbName));
 
         return self::SUCCESS;
