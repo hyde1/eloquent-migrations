@@ -6,15 +6,15 @@ use Illuminate\Database\Console\Migrations\TableGuesser;
 use Illuminate\Database\Migrations\MigrationCreator;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand('create:database')]
 class CreateDatabase extends AbstractCommand
 {
-    protected static $defaultName = 'create:database';
-
     protected function configure()
     {
         $this
@@ -25,7 +25,7 @@ class CreateDatabase extends AbstractCommand
         parent::configure();
     }
 
-    public function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->bootstrap($input, $output);
         $dbName = trim($input->getArgument('name'));
@@ -34,7 +34,7 @@ class CreateDatabase extends AbstractCommand
             return self::INVALID;
         }
         $this->getDb()->statement('CREATE DATABASE ' . $dbName);
-        
+
         $output->writeln(sprintf('<info>Database `%s` created successfuly</info>', $dbName));
 
         return self::SUCCESS;

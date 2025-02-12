@@ -3,6 +3,7 @@
 namespace Hyde1\EloquentMigrations\Command;
 
 use Illuminate\Console\OutputStyle;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -11,10 +12,9 @@ use Illuminate\Database\Migrations\DatabaseMigrationRepository;
 use Illuminate\Database\Migrations\Migrator as BaseMigrator;
 use Illuminate\Filesystem\Filesystem;
 
+#[AsCommand('migrate')]
 class Migrate extends AbstractCommand
 {
-    protected static $defaultName = 'migrate';
-
     protected BaseMigrator $migrator;
     protected DatabaseMigrationRepository $repository;
 
@@ -30,7 +30,7 @@ class Migrate extends AbstractCommand
         parent::configure();
     }
 
-    public function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->bootstrap($input, $output);
 

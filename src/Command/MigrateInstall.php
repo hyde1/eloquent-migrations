@@ -3,14 +3,14 @@
 namespace Hyde1\EloquentMigrations\Command;
 
 use Illuminate\Database\Migrations\DatabaseMigrationRepository;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand('migrate:install')]
 class MigrateInstall extends AbstractCommand
 {
-    protected static $defaultName = 'migrate:install';
-
     protected function configure()
     {
         $this
@@ -21,7 +21,7 @@ class MigrateInstall extends AbstractCommand
         parent::configure();
     }
 
-    public function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->bootstrap($input, $output);
 
