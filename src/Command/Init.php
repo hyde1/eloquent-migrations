@@ -20,7 +20,7 @@ class Init extends Command
             ->setHelp('Initialize the project for Eloquent Migrations' . PHP_EOL);
     }
 
-    public function execute(InputInterface $input, OutputInterface $output): int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $path = $this->createPath($input, $output);
         $this->createConfig($path, $output);
