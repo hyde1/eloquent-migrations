@@ -2,16 +2,17 @@
 
 namespace Hyde1\EloquentMigrations\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Illuminate\Database\Eloquent\Model;
 use Hyde1\EloquentMigrations\Seeds\Seeder;
 
+#[AsCommand('seed:run')]
 class RunSeed extends AbstractCommand
 {
     public const SEEDERS_NAMESPACE = 'Database\\Seeders\\';
-    protected static $defaultName = 'seed:run';
 
     protected function configure()
     {
@@ -24,7 +25,7 @@ class RunSeed extends AbstractCommand
         parent::configure();
     }
 
-    public function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->bootstrap($input, $output);
         if (!$this->confirmToProceed()) {

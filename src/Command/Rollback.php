@@ -2,6 +2,7 @@
 
 namespace Hyde1\EloquentMigrations\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
@@ -12,10 +13,9 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 use Illuminate\Support\Composer;
 
+#[AsCommand('rollback')]
 class Rollback extends AbstractCommand
 {
-    protected static $defaultName = 'rollback';
-
     /**
      * The migration creator instance.
      *
@@ -42,7 +42,7 @@ class Rollback extends AbstractCommand
         parent::configure();
     }
 
-    public function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->bootstrap($input, $output);
         $this->repository = new DatabaseMigrationRepository($this->getDb(), $this->getMigrationTable());

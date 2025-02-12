@@ -3,6 +3,7 @@
 namespace Hyde1\EloquentMigrations\Command;
 
 use Illuminate\Support\Collection;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Hyde1\EloquentMigrations\Migrations\Migrator;
@@ -10,10 +11,9 @@ use Illuminate\Database\Migrations\DatabaseMigrationRepository;
 use Illuminate\Database\Migrations\Migrator as BaseMigrator;
 use Illuminate\Filesystem\Filesystem;
 
+#[AsCommand('status')]
 class Status extends AbstractCommand
 {
-    protected static $defaultName = 'status';
-
     protected BaseMigrator $migrator;
     protected DatabaseMigrationRepository $repository;
 
@@ -26,7 +26,7 @@ class Status extends AbstractCommand
         parent::configure();
     }
 
-    public function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->bootstrap($input, $output);
         $this->repository = new DatabaseMigrationRepository($this->getDb(), $this->getMigrationTable());

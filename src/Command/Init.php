@@ -2,16 +2,16 @@
 
 namespace Hyde1\EloquentMigrations\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use RuntimeException;
 
+#[AsCommand('init')]
 class Init extends Command
 {
-    protected static $defaultName = 'init';
-
     protected function configure()
     {
         $this
@@ -20,7 +20,7 @@ class Init extends Command
             ->setHelp('Initialize the project for Eloquent Migrations' . PHP_EOL);
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    public function execute(InputInterface $input, OutputInterface $output): int
     {
         $path = $this->createPath($input, $output);
         $this->createConfig($path, $output);

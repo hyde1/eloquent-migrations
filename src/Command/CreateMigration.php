@@ -4,6 +4,7 @@ namespace Hyde1\EloquentMigrations\Command;
 
 use Illuminate\Database\Console\Migrations\TableGuesser;
 use Illuminate\Database\Migrations\MigrationCreator;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
@@ -11,9 +12,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 
+#[AsCommand('create')]
 class CreateMigration extends AbstractCommand
 {
-    protected static $defaultName = 'create';
     protected MigrationCreator $creator;
 
     protected function configure()
@@ -30,7 +31,7 @@ class CreateMigration extends AbstractCommand
         $this->creator = new MigrationCreator(new Filesystem(), __DIR__ . '/../../data/stubs');
     }
 
-    public function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->bootstrap($input, $output);
 
