@@ -1,6 +1,7 @@
 {
     "name": "hyde1/eloquent-migrations",
     "type": "library",
+    "license": "MIT",
     "authors": [
         {
             "name": "Marc Legay",
@@ -8,11 +9,11 @@
         }
     ],
     "require": {
-		"php": ">=8.2",
-		"symfony/console": "^7.0",
-        "illuminate/database": "^11.0",
-		"illuminate/console": "^11.0",
-		"illuminate/filesystem": "^11.0"
+        "php": ">=8.4",
+        "symfony/console": "^7.4",
+        "illuminate/database": "^12.0",
+		"illuminate/console": "^12.0",
+		"illuminate/filesystem": "^12.0"
 	},
 	"autoload": {
 		"psr-4": {
