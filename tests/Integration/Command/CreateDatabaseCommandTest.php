@@ -16,7 +16,7 @@ final class CreateDatabaseCommandTest extends IntegrationTestCase
     protected function tearDown(): void
     {
         if ($this->createdDatabase !== null) {
-            $this->db()->statement('DROP DATABASE IF EXISTS ' . $this->createdDatabase);
+            $this->db()->statement('DROP DATABASE IF EXISTS ' . $this->db()->getQueryGrammar()->wrap($this->createdDatabase));
         }
 
         parent::tearDown();
@@ -38,7 +38,27 @@ final class CreateDatabaseCommandTest extends IntegrationTestCase
 
         // Then
         $this->assertCommandSucceeded($tester);
-        $this->assertStringContainsString(sprintf('Database `%s` created successfuly', $databaseName), $tester->getDisplay());
+        $this->assertStringContainsString(sprintf('Database `%s` created successfully', $databaseName), $tester->getDisplay());
+        $this->assertTrue($this->databaseExists($databaseName));
+    }
+
+    /**
+     * Accepted names that are not plain SQL identifiers (dash, leading digit) are invalid unquoted.
+     * Checks the database is created with the exact given name.
+     */
+    #[DataProvider('namesToQuoteProvider')]
+    public function testCreatesADatabaseWhoseNameMustBeQuoted(string $namePattern): void
+    {
+        // Given
+        $this->skipUnlessDriver(TestDatabase::PGSQL, TestDatabase::MYSQL);
+        $databaseName = sprintf($namePattern, bin2hex(random_bytes(4)));
+        $this->createdDatabase = $databaseName;
+
+        // When
+        $tester = $this->runCommand('create:database', ['name' => $databaseName]);
+
+        // Then
+        $this->assertCommandSucceeded($tester);
         $this->assertTrue($this->databaseExists($databaseName));
     }
 
@@ -73,6 +93,15 @@ final class CreateDatabaseCommandTest extends IntegrationTestCase
     // -------------------
     // 🧪 Data Providers
     // -------------------
+
+    /** @return array<string, array{string}> */
+    public static function namesToQuoteProvider(): array
+    {
+        return [
+            'dash' => ['elmigrator-created-%s'],
+            'leading digit' => ['1elmigrator_created_%s'],
+        ];
+    }
 
     /** @return array<string, array{string}> */
     public static function invalidNamesProvider(): array

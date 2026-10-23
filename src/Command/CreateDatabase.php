@@ -28,9 +28,12 @@ class CreateDatabase extends AbstractCommand
             $output->writeln('<error>Invalid database name</error>');
             return self::INVALID;
         }
-        $this->getDb()->connection($this->database)->statement('CREATE DATABASE ' . $dbName);
+        $connection = $this->getDb()->connection($this->database);
+        // Plain identifiers stay unquoted: PostgreSQL folds them to lower case, quoting them would change the name
+        $sqlName = preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $dbName) ? $dbName : $connection->getQueryGrammar()->wrap($dbName);
+        $connection->statement('CREATE DATABASE ' . $sqlName);
 
-        $output->writeln(sprintf('<info>Database `%s` created successfuly</info>', $dbName));
+        $output->writeln(sprintf('<info>Database `%s` created successfully</info>', $dbName));
 
         return self::SUCCESS;
     }
