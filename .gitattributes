@@ -1,0 +1,9 @@
+# Development files are not shipped with the package
+/.github export-ignore
+/.idea export-ignore
+/scripts export-ignore
+/tests export-ignore
+/.gitattributes export-ignore
+/.gitignore export-ignore
+/compose.yaml export-ignore
+/phpunit.xml.dist export-ignore

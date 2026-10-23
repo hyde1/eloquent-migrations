@@ -1,0 +1,52 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Hyde1\EloquentMigrations\Tests\Integration\Command;
+
+use Hyde1\EloquentMigrations\Tests\Support\IntegrationTestCase;
+
+final class InitCommandTest extends IntegrationTestCase
+{
+    private const string CONFIG_TEMPLATE = __DIR__ . '/../../../data/elmigrator.php.dist';
+
+    /**
+     * init bootstraps a project: the config file goes in the given directory and a "migrator" binary in the cwd.
+     * Checks both files are written and the binary loads the application from the vendor directory.
+     */
+    public function testCreatesTheConfigFileAndTheBinary(): void
+    {
+        // When
+        $tester = $this->runCommand('init', ['path' => 'database']);
+
+        // Then
+        $this->assertCommandSucceeded($tester);
+        $this->assertFileEquals(self::CONFIG_TEMPLATE, $this->workingDirectory . '/database/elmigrator.php');
+
+        $binary = (string) file_get_contents($this->workingDirectory . '/migrator');
+        $this->assertStringContainsString("require 'vendor/hyde1/eloquent-migrations/app/elmigrator.php';", $binary);
+        $this->assertStringNotContainsString('__DIR__', $binary);
+    }
+
+    public function testCreatesTheGivenDirectoryWhenMissing(): void
+    {
+        // When
+        $tester = $this->runCommand('init', ['path' => 'config']);
+
+        // Then
+        $this->assertCommandSucceeded($tester);
+        $this->assertDirectoryExists($this->workingDirectory . '/config');
+        $this->assertFileExists($this->workingDirectory . '/config/elmigrator.php');
+        $this->assertStringContainsString('created config', $tester->getDisplay());
+    }
+
+    public function testOverwritesTheConfigFileOfAnExistingDirectory(): void
+    {
+        // When
+        $tester = $this->runCommand('init', ['path' => '.']);
+
+        // Then
+        $this->assertCommandSucceeded($tester);
+        $this->assertFileEquals(self::CONFIG_TEMPLATE, $this->workingDirectory . '/elmigrator.php');
+    }
+}

@@ -12,17 +12,34 @@
         "php": ">=8.4",
         "symfony/console": "^7.4",
         "illuminate/database": "^12.0",
-		"illuminate/console": "^12.0",
-		"illuminate/filesystem": "^12.0"
-	},
-	"autoload": {
-		"psr-4": {
-			"Hyde1\\EloquentMigrations\\": "src/"
-		},
-		"files": [
-			"src/helpers.php"
-		]
-	},
-	"bin": ["bin/elmigrator"],
-	"description": "Use Eloquent migration system without Laravel"
+        "illuminate/console": "^12.0",
+        "illuminate/filesystem": "^12.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^12.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Hyde1\\EloquentMigrations\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Hyde1\\EloquentMigrations\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "@php vendor/bin/phpunit",
+        "test-unit": "@php vendor/bin/phpunit --testsuite=unit",
+        "test-integration": "@php vendor/bin/phpunit --testsuite=integration",
+        "test-documented-bugs": "@php vendor/bin/phpunit --group=documented-bug"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "bin": ["bin/elmigrator"],
+    "description": "Use Eloquent migration system without Laravel"
 }
