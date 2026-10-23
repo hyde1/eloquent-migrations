@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use InvalidArgumentException;
-use RuntimeException;
+use Hyde1\EloquentMigrations\Support\TemplateWriter;
 
 #[AsCommand('init')]
 class Init extends Command
@@ -62,46 +62,19 @@ class Init extends Command
 
     protected function createConfig(string $path, OutputInterface $output): void
     {
-        $configFile = 'elmigrator.php';
-        $contents = file_get_contents(__DIR__ . '/../../data/' . $configFile . '.dist');
-
-        if ($contents === false) {
-            throw new RuntimeException('Could not find template for config file');
-        }
-
-        $outputPath = $path . DIRECTORY_SEPARATOR . $configFile;
-        $ret = file_put_contents($outputPath, $contents);
-        if ($ret === false) {
-            throw new RuntimeException(sprintf(
-                'The config file `%s` could not be written',
-                $configFile,
-            ));
-        }
+        $outputPath = $path . DIRECTORY_SEPARATOR . 'elmigrator.php';
+        new TemplateWriter()->write('data/elmigrator.php.dist', $outputPath);
 
         $output->writeln("<info>created</info> $outputPath");
     }
 
     public function createBin(OutputInterface $output): void
     {
-        $pathBinFile = __DIR__ . '/../../bin/elmigrator';
-
-        $contents = file_get_contents($pathBinFile);
-
-        if ($contents === false) {
-            throw new RuntimeException('Could not find bin file ' . $pathBinFile);
-        }
-
-        $contents = str_replace("__DIR__ . '/../", "'vendor/hyde1/eloquent-migrations/", $contents);
-
         $outputPathBinFile = getcwd() . DIRECTORY_SEPARATOR . 'migrator';
-        $ret = file_put_contents($outputPathBinFile, $contents);
-
-        if ($ret === false) {
-            throw new RuntimeException(sprintf(
-                'Could not write the binary file to %s',
-                $outputPathBinFile,
-            ));
-        }
+        // The library binary, loading the application from the vendor directory instead of its own one
+        new TemplateWriter()->write('bin/elmigrator', $outputPathBinFile, [
+            "__DIR__ . '/../" => "'vendor/hyde1/eloquent-migrations/",
+        ]);
         if (!chmod($outputPathBinFile, 0o755)) {
             // The binary is written, init keeps succeeding: it can still be run with php
             $output->writeln("<comment>Could not make $outputPathBinFile executable, run chmod +x on it</comment>");
