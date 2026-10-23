@@ -130,9 +130,16 @@ class RunSeed extends AbstractCommand
             }
 
             ksort($seeds);
-            $this->seeds = $seeds;
             $this->warnAboutUnknownDependencies($seeds);
-            $this->seeds = $this->orderSeedsByDependencies($seeds);
+            // getSeedDependenciesInstances() reads the loaded seeders while they are ordered
+            $this->seeds = $seeds;
+            try {
+                $this->seeds = $this->orderSeedsByDependencies($seeds);
+            } catch (\InvalidArgumentException $exception) {
+                // Next runs of this command instance must reject the cycle again
+                $this->seeds = null;
+                throw $exception;
+            }
         }
 
         return $this->seeds;

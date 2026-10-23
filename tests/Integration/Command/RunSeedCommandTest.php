@@ -6,6 +6,8 @@ namespace Hyde1\EloquentMigrations\Tests\Integration\Command;
 
 use Hyde1\EloquentMigrations\Tests\Support\IntegrationTestCase;
 use Hyde1\EloquentMigrations\Tests\Support\TestDatabase;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Tester\ApplicationTester;
 
 final class RunSeedCommandTest extends IntegrationTestCase
 {
@@ -139,6 +141,29 @@ final class RunSeedCommandTest extends IntegrationTestCase
 
         // When
         $this->runCommand('seed:run');
+    }
+
+    /**
+     * The seeders are loaded once per command instance. Checks a second run of the same instance (e.g. an application
+     * reused by a worker or a test) still rejects the cycle instead of running the seeders unordered.
+     */
+    public function testRejectsCircularDependenciesOnEachRunOfTheSameCommand(): void
+    {
+        // Given
+        $this->writeConfig(options: ['seeds' => self::seedersFixturePath('circular_dependencies')]);
+        /** @var Application $application */
+        $application = require __DIR__ . '/../../../app/elmigrator.php';
+        $application->setAutoExit(false);
+        $tester = new ApplicationTester($application);
+        $tester->run(['command' => 'seed:run']);
+
+        // When
+        $tester->run(['command' => 'seed:run']);
+
+        // Then
+        $this->assertNotSame(0, $tester->getStatusCode());
+        $this->assertStringContainsString('Circular dependency between seeders', $tester->getDisplay());
+        $this->assertSame([], $this->seedRuns());
     }
 
     /**
