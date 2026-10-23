@@ -7,6 +7,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Illuminate\Database\Migrations\DatabaseMigrationRepository;
+use Illuminate\Filesystem\Filesystem;
 
 #[AsCommand('seed:create')]
 class CreateSeed extends AbstractCommand
@@ -35,6 +36,9 @@ class CreateSeed extends AbstractCommand
         }
 
         $contents = str_replace('DummySeeder', $className, $contents);
+
+        // Like the migrations directory, which MigrationCreator creates on demand
+        new Filesystem()->ensureDirectoryExists(dirname($path));
 
         $ret = file_put_contents($path, $contents);
         if ($ret === false) {

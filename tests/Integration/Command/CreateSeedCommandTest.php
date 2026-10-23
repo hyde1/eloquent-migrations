@@ -26,6 +26,22 @@ final class CreateSeedCommandTest extends IntegrationTestCase
         $this->assertStringNotContainsString('DummySeeder', $code);
     }
 
+    /**
+     * In a new project the seeds directory may not exist yet, like the migrations one which create makes on demand.
+     */
+    public function testCreatesTheSeedsDirectoryWhenMissing(): void
+    {
+        // Given
+        rmdir($this->seedsDirectory());
+
+        // When
+        $tester = $this->runCommand('seed:create', ['name' => 'CustomerSeeder']);
+
+        // Then
+        $this->assertCommandSucceeded($tester);
+        $this->assertFileExists($this->seedsDirectory() . '/CustomerSeeder.php');
+    }
+
     #[DataProvider('invalidNamesProvider')]
     public function testRejectsAnInvalidClassName(string $name): void
     {
