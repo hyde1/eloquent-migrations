@@ -22,8 +22,8 @@ class CreateMigration extends AbstractCommand
         $this
             ->setDescription('Create a new migration')
             ->addArgument('name', InputArgument::REQUIRED, 'The migration name')
-            ->addOption('--create', null, InputOption::VALUE_REQUIRED, 'The table to create')
-            ->addOption('--table', null, InputOption::VALUE_REQUIRED, 'The table to migrate')
+            ->addOption('create', null, InputOption::VALUE_REQUIRED, 'The table to create')
+            ->addOption('table', null, InputOption::VALUE_REQUIRED, 'The table to migrate')
             ->setHelp('Creates a new migration' . PHP_EOL);
 
         parent::configure();
@@ -43,13 +43,16 @@ class CreateMigration extends AbstractCommand
             $create = true;
         }
         if (! $table) {
-            [$table, $create] = TableGuesser::guess($name);
+            // Without table in the name, the guesser returns null: the migration is generated from the blank stub.
+            // Released Illuminate versions document a non-null return, fixed in the upcoming ones.
+            /** @var array{string, bool}|null $guessed */
+            $guessed = TableGuesser::guess($name);
+            [$table, $create] = $guessed ?? [null, false];
         }
 
-        // Without table, the guesser returns null
         $this->writeMigration($name, $table, (bool) $create);
 
-        return 0;
+        return self::SUCCESS;
     }
 
     /**
