@@ -15,8 +15,8 @@ on:
         type: string
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -68,7 +68,7 @@ jobs:
       fail-fast: false
       matrix:
         database: [sqlite, pgsql, mysql]
-        illuminate: ${{ inputs.illuminate && fromJSON(format('["{0}"]', inputs.illuminate)) || fromJSON('["^13.0", "dev-master"]') }}
+        illuminate: ${{ inputs.illuminate && fromJSON(format('[{0}]', toJSON(inputs.illuminate))) || fromJSON('["^13.0", "dev-master"]') }}
     steps:
       - uses: actions/checkout@v7
 
@@ -83,13 +83,15 @@ jobs:
           coverage: none
 
       - name: Require Illuminate ${{ matrix.illuminate }}
+        env:
+          ILLUMINATE_VERSION: ${{ matrix.illuminate }}
         run: |
           composer config minimum-stability dev
           composer config prefer-stable true
           composer require --no-interaction --no-progress --with-all-dependencies \
-            "illuminate/database:${{ matrix.illuminate }}" \
-            "illuminate/console:${{ matrix.illuminate }}" \
-            "illuminate/filesystem:${{ matrix.illuminate }}"
+            "illuminate/database:$ILLUMINATE_VERSION" \
+            "illuminate/console:$ILLUMINATE_VERSION" \
+            "illuminate/filesystem:$ILLUMINATE_VERSION"
 
       - name: Installed versions
         run: composer show | grep -E '^(illuminate|symfony/console) '

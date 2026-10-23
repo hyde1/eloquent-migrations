@@ -35,7 +35,7 @@
         "test": "@php vendor/bin/phpunit",
         "test-unit": "@php vendor/bin/phpunit --testsuite=unit",
         "test-integration": "@php vendor/bin/phpunit --testsuite=integration",
-        "test-documented-bugs": "@php vendor/bin/phpunit --group=documented-bug"
+        "test-documented-bugs": "@php vendor/bin/phpunit --group=documented-bug --do-not-fail-on-empty-test-suite"
     },
     "config": {
         "sort-packages": true
