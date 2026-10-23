@@ -7,6 +7,7 @@ php.tags
 .DS_Store
 .phpunit.result.cache
 .phpunit.cache
+.phpstan.cache
 tests/build
 .env.local
 .env.*.local

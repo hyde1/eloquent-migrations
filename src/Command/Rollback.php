@@ -5,38 +5,26 @@ namespace Hyde1\EloquentMigrations\Command;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Hyde1\EloquentMigrations\Migrations\Migrator;
+use Illuminate\Console\OutputStyle;
 use Illuminate\Database\Migrations\DatabaseMigrationRepository;
+use Illuminate\Database\Migrations\Migrator as BaseMigrator;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Str;
-use Illuminate\Support\Composer;
 
 #[AsCommand('rollback')]
 class Rollback extends AbstractCommand
 {
-    /**
-     * The migration creator instance.
-     *
-     * @var \Illuminate\Database\Migrations\Migrator
-     */
-    protected $migrator;
+    protected BaseMigrator $migrator;
+    protected DatabaseMigrationRepository $repository;
 
-    /**
-     * The migration repository
-     *
-     * @var DatabaseMigrationRepository
-     */
-    protected $repository;
-
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Rollback migrations')
             ->addOption('dry-run', 'x', InputOption::VALUE_NONE, 'Dump query to standard output instead of executing it')
             ->addOption('step', 's', InputOption::VALUE_REQUIRED, 'Number of migrations to rollback', 0)
-            ->addOption('migration', 'm', InputOption::VALUE_REQUIRED, 'Migrate a specific migration')
+            ->addOption('migration', 'm', InputOption::VALUE_REQUIRED, 'Rollback a specific migration (file name without extension), whatever its batch')
             ->setHelp('Rollback the last migration' . PHP_EOL);
 
         parent::configure();
@@ -49,14 +37,14 @@ class Rollback extends AbstractCommand
         $this->migrator = new Migrator($this->repository, $this->getDb(), new Filesystem());
         $this->migrator->setOutput($output);
 
-        $this->migrator->usingConnection($this->database, function () use ($output, $input) {
+        $this->migrator->usingConnection($this->getConnectionName(), function () use ($output, $input): void {
             $this->migrator
-                ->setOutput(new \Illuminate\Console\OutputStyle($input, $output))
+                ->setOutput(new OutputStyle($input, $output))
                 ->rollback(
                     [$this->getMigrationPath()],
                     [
                         'pretend' => $this->input->getOption('dry-run'),
-                        'step' => (int)$this->input->getOption('step'),
+                        'step' => (int) $this->input->getOption('step'),
                         'migration' => $this->input->getOption('migration'),
                     ],
                 );

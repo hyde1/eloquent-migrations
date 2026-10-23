@@ -1,0 +1,16 @@
+includes:
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+    - vendor/phpstan/phpstan-phpunit/rules.neon
+    - phpstan-baseline.neon
+
+parameters:
+    level: 8
+    # The same baseline is used to analyse upcoming Illuminate versions, see .github/workflows/tests.yml
+    reportUnmatchedIgnoredErrors: false
+    tmpDir: .phpstan.cache
+    paths:
+        - app
+        - src
+        # Includes tests/Fixtures: migrations and seeders written like in a project, analysing them reports the
+        # Illuminate APIs they rely on that a new Illuminate version removed or changed.
+        - tests

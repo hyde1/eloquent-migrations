@@ -1,0 +1,107 @@
+name: Tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  schedule:
+    # Every Monday: catches breaking changes from new Illuminate releases before upgrading projects
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      illuminate:
+        description: "Illuminate version constraint for the upcoming job (e.g. ^13.0, 13.x-dev, dev-master)"
+        required: false
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: "PHP ${{ matrix.stack.php }} - ${{ matrix.stack.dependencies }} deps - ${{ matrix.database }}"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        database: [sqlite, pgsql, mysql]
+        # Supported range of composer.json: oldest PHP with lowest dependencies, newest PHP with latest ones
+        stack:
+          - { php: "8.4", dependencies: lowest }
+          - { php: "8.5", dependencies: highest }
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Start ${{ matrix.database }}
+        if: matrix.database != 'sqlite'
+        run: docker compose up -d --wait ${{ matrix.database }}
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.stack.php }}
+          extensions: pdo_sqlite, pdo_pgsql, pdo_mysql
+          coverage: none
+
+      - uses: ramsey/composer-install@v3
+        with:
+          dependency-versions: ${{ matrix.stack.dependencies }}
+
+      - name: Installed versions
+        run: composer show | grep -E '^(illuminate|symfony/console) '
+
+      - name: PHPUnit
+        run: vendor/bin/phpunit
+        env:
+          DB_CONNECTION: ${{ matrix.database }}
+
+  upcoming:
+    # Runs the suite against Illuminate versions not supported yet by composer.json, to know in advance what an upgrade
+    # will break. Informational on pull requests and pushes, blocking on scheduled and manual runs (to be notified).
+    name: "Illuminate ${{ matrix.illuminate }} - ${{ matrix.database }}"
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ github.event_name == 'pull_request' || github.event_name == 'push' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        database: [sqlite, pgsql, mysql]
+        illuminate: ${{ inputs.illuminate && fromJSON(format('[{0}]', toJSON(inputs.illuminate))) || fromJSON('["^13.0", "dev-master"]') }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Start ${{ matrix.database }}
+        if: matrix.database != 'sqlite'
+        run: docker compose up -d --wait ${{ matrix.database }}
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          extensions: pdo_sqlite, pdo_pgsql, pdo_mysql
+          coverage: none
+
+      - name: Require Illuminate ${{ matrix.illuminate }}
+        env:
+          ILLUMINATE_VERSION: ${{ matrix.illuminate }}
+        run: |
+          composer config minimum-stability dev
+          composer config prefer-stable true
+          composer require --no-interaction --no-progress --with-all-dependencies \
+            "illuminate/database:$ILLUMINATE_VERSION" \
+            "illuminate/console:$ILLUMINATE_VERSION" \
+            "illuminate/filesystem:$ILLUMINATE_VERSION"
+
+      - name: Installed versions
+        run: composer show | grep -E '^(illuminate|symfony/console) '
+
+      - name: PHPUnit
+        run: vendor/bin/phpunit
+        env:
+          DB_CONNECTION: ${{ matrix.database }}
+
+      - name: PHPStan
+        # Reports the Illuminate APIs used by the library and the test fixtures that were removed or changed
+        if: ${{ !cancelled() && matrix.database == 'sqlite' }}
+        run: vendor/bin/phpstan analyse --no-progress --memory-limit=1G --error-format=github

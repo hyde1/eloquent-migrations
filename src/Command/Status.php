@@ -17,7 +17,7 @@ class Status extends AbstractCommand
     protected BaseMigrator $migrator;
     protected DatabaseMigrationRepository $repository;
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Display migration status')
@@ -30,6 +30,7 @@ class Status extends AbstractCommand
     {
         $this->bootstrap($input, $output);
         $this->repository = new DatabaseMigrationRepository($this->getDb(), $this->getMigrationTable());
+        $this->repository->setSource($this->getConnectionName());
         $this->migrator = new Migrator($this->repository, $this->getDb(), new Filesystem());
         $this->migrator->setOutput($output);
 
@@ -51,14 +52,14 @@ class Status extends AbstractCommand
     /**
      * Get the status for the given ran migrations.
      *
-     * @param  array  $ran
-     * @param  array  $batches
-     * @return Collection
+     * @param array<mixed> $ran
+     * @param array<string, int> $batches
+     * @return Collection<string, list<int|string>>
      */
     protected function getStatusFor(array $ran, array $batches): Collection
     {
         return Collection::make($this->getAllMigrationFiles())
-            ->map(function ($migration) use ($ran, $batches) {
+            ->map(function (string $migration) use ($ran, $batches): array {
                 $migrationName = $this->migrator->getMigrationName($migration);
 
                 return in_array($migrationName, $ran)
@@ -70,7 +71,7 @@ class Status extends AbstractCommand
     /**
      * Get an array of all the migration files.
      *
-     * @return array
+     * @return array<string, string> Paths indexed by migration name
      */
     protected function getAllMigrationFiles(): array
     {

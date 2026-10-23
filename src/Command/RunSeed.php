@@ -14,7 +14,7 @@ class RunSeed extends AbstractCommand
 {
     public const SEEDERS_NAMESPACE = 'Database\\Seeders\\';
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Run seed')
@@ -37,7 +37,7 @@ class RunSeed extends AbstractCommand
         $start = microtime(true);
 
         $seedSet = $input->getOption('seed');
-        Model::unguarded(function () use ($seedSet) {
+        Model::unguarded(function () use ($seedSet): void {
             if (empty($seedSet)) {
                 $this->runSeed();
             } else {
@@ -54,9 +54,13 @@ class RunSeed extends AbstractCommand
         return 0;
     }
 
-    protected function runSeed($seed = null)
+    protected function runSeed(?string $seed = null): void
     {
         $seeds = $this->getSeeds();
+        if ($seed !== null && !str_contains($seed, '\\')) {
+            // Short class name, seeders are declared in a single namespace
+            $seed = self::SEEDERS_NAMESPACE . $seed;
+        }
 
         if ($seed === null) {
             // run all seeders
@@ -72,7 +76,7 @@ class RunSeed extends AbstractCommand
         }
     }
 
-    protected function executeSeed(Seeder $seeder)
+    protected function executeSeed(Seeder $seeder): void
     {
         $db = $this->getDb()->connection($this->database);
         $seeder->setDb($db);
@@ -81,7 +85,7 @@ class RunSeed extends AbstractCommand
         if (!$seeder->withinTransaction) {
             $seeder->run();
         } else {
-            $db->transaction(function () use ($seeder) {
+            $db->transaction(function () use ($seeder): void {
                 $seeder->run();
             });
         }
@@ -89,7 +93,12 @@ class RunSeed extends AbstractCommand
         $this->output->writeln("<info>" . $seeder->getName() . "</info> seeded" . sprintf('%.4fs', $end - $start));
     }
 
+    /** @var array<string, Seeder>|null Seeders indexed by class name */
     private ?array $seeds = null;
+
+    /**
+     * @return array<string, Seeder>
+     */
     private function getSeeds(): array
     {
         if ($this->seeds === null) {
@@ -105,7 +114,7 @@ class RunSeed extends AbstractCommand
                     throw new \InvalidArgumentException(sprintf(
                         'Could not find class "%s" in file "%s"',
                         $className,
-                        $file
+                        $file,
                     ));
                 }
 
@@ -114,7 +123,7 @@ class RunSeed extends AbstractCommand
                     throw new \InvalidArgumentException(sprintf(
                         'The class "%s" in file "%s" must extend \Hyde1\EloquentMigrations\Seeds\Seeder',
                         $className,
-                        $file
+                        $file,
                     ));
                 }
                 $seeds[$className] = $seed;
@@ -129,11 +138,18 @@ class RunSeed extends AbstractCommand
         return $this->seeds;
     }
 
+    /**
+     * @return list<string>
+     */
     private function getSeedFiles(): array
     {
-        return glob($this->getSeedPath() . DIRECTORY_SEPARATOR . '*.php');
+        return glob($this->getSeedPath() . DIRECTORY_SEPARATOR . '*.php') ?: [];
     }
 
+    /**
+     * @param array<string, Seeder> $seeds
+     * @return array<string, Seeder>
+     */
     private function orderSeedsByDependencies(array $seeds): array
     {
         $orderedSeeds = [];
@@ -149,6 +165,9 @@ class RunSeed extends AbstractCommand
         return $orderedSeeds;
     }
 
+    /**
+     * @return array<string, Seeder>
+     */
     private function getSeedDependenciesInstances(Seeder $seed): array
     {
         $dependenciesInstances = [];
@@ -156,7 +175,7 @@ class RunSeed extends AbstractCommand
         $dependencies = $seed->getDependencies();
         if (!empty($dependencies)) {
             foreach ($dependencies as $dependency) {
-                foreach ($this->seeds as $seed) {
+                foreach ($this->seeds ?? [] as $seed) {
                     if (get_class($seed) === $dependency) {
                         $dependenciesInstances[get_class($seed)] = $seed;
                     }

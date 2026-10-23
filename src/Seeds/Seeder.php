@@ -13,9 +13,9 @@ abstract class Seeder
     public bool $withinTransaction = true;
 
     /**
-     * Return array of Seeds that needs to be run before
+     * Return the seeders (class names) that need to be run before this one
      *
-     * @return array
+     * @return list<string>
      */
     public function getDependencies(): array
     {

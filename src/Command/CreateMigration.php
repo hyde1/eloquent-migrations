@@ -17,7 +17,7 @@ class CreateMigration extends AbstractCommand
 {
     protected MigrationCreator $creator;
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Create a new migration')
@@ -46,7 +46,8 @@ class CreateMigration extends AbstractCommand
             [$table, $create] = TableGuesser::guess($name);
         }
 
-        $this->writeMigration($name, $table, $create);
+        // Without table, the guesser returns null
+        $this->writeMigration($name, $table, (bool) $create);
 
         return 0;
     }
@@ -54,18 +55,17 @@ class CreateMigration extends AbstractCommand
     /**
      * Write the migration file to disk.
      *
-     * @param string $name
-     * @param string $table
-     * @param bool $create
+     * Without table, the migration is generated from the blank stub.
+     *
      * @throws \Exception
      */
-    protected function writeMigration(string $name, string $table, bool $create)
+    protected function writeMigration(string $name, ?string $table, bool $create): void
     {
         $file = $this->creator->create(
             $name,
             $this->getMigrationPath(),
             $table,
-            $create
+            $create,
         );
         $this->output->writeln("<info>Created Migration:</info> {$file}");
     }

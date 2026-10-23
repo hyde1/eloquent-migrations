@@ -7,12 +7,13 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
+use InvalidArgumentException;
 use RuntimeException;
 
 #[AsCommand('init')]
 class Init extends Command
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Initialize the project')
@@ -40,14 +41,14 @@ class Init extends Command
         if (!is_dir($path) && !mkdir($path)) {
             throw new InvalidArgumentException(sprintf(
                 'Cannot create `%s` directory',
-                $path
+                $path,
             ));
         }
 
         if (!is_writable($path) || is_file($path)) {
             throw new InvalidArgumentException(sprintf(
                 'The directory `%s` is not writable',
-                $path
+                $path,
             ));
         }
 
@@ -55,7 +56,7 @@ class Init extends Command
         return $path;
     }
 
-    protected function createConfig(string $path, OutputInterface $output)
+    protected function createConfig(string $path, OutputInterface $output): void
     {
         $configfile = 'elmigrator.php';
         $contents = file_get_Contents(__DIR__ . '/../../data/' . $configfile . '.dist');
@@ -69,14 +70,14 @@ class Init extends Command
         if ($ret === false) {
             throw new RuntimeException(sprintf(
                 'The config file `%s` could not be written',
-                $configfile
+                $configfile,
             ));
         }
 
         $output->writeln("<info>created</info> $outputPath");
     }
 
-    public function createBin(OutputInterface $output)
+    public function createBin(OutputInterface $output): void
     {
         $pathBinFile = __DIR__ . '/../../bin/elmigrator';
 
@@ -94,7 +95,7 @@ class Init extends Command
         if ($ret === false) {
             throw new RuntimeException(sprintf(
                 'Could not be written binary file to %s',
-                $outputPathBinFile
+                $outputPathBinFile,
             ));
         }
 

@@ -5,18 +5,12 @@ namespace Hyde1\EloquentMigrations\Command;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
-use Hyde1\EloquentMigrations\Migrations\Migrator;
-use Illuminate\Database\Migrations\DatabaseMigrationRepository;
-use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Str;
-use Illuminate\Support\Composer;
 
 #[AsCommand('migrate:fresh')]
 class FreshMigration extends AbstractCommand
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Drop all tables and re-run all migrations')
@@ -59,7 +53,7 @@ class FreshMigration extends AbstractCommand
         if ($this->input->getOption('seed')) {
             $this->call('seed:run', array_filter([
                 '--database' => $this->database,
-                '--seed' => $this->input->getOption('seeder'),
+                '--seed' => array_filter([$this->input->getOption('seeder')]),
                 '--force' => true,
             ]));
         }
@@ -69,10 +63,8 @@ class FreshMigration extends AbstractCommand
 
     /**
      * Drop all of the database tables.
-     *
-     * @return void
      */
-    protected function dropAllTables()
+    protected function dropAllTables(): void
     {
         $this->getDb()->connection($this->database)
             ->getSchemaBuilder()
@@ -81,10 +73,8 @@ class FreshMigration extends AbstractCommand
 
     /**
      * Drop all database views.
-     *
-     * @return void
      */
-    protected function dropAllViews()
+    protected function dropAllViews(): void
     {
         $this->getDb()->connection($this->database)
                     ->getSchemaBuilder()
@@ -92,10 +82,8 @@ class FreshMigration extends AbstractCommand
     }
     /**
      * Drop all database types.
-     *
-     * @return void
      */
-    protected function dropAllTypes()
+    protected function dropAllTypes(): void
     {
         $this->getDb()->connection($this->database)
                     ->getSchemaBuilder()

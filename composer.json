@@ -12,17 +12,53 @@
         "php": ">=8.4",
         "symfony/console": "^7.4",
         "illuminate/database": "^12.0",
-		"illuminate/console": "^12.0",
-		"illuminate/filesystem": "^12.0"
-	},
-	"autoload": {
-		"psr-4": {
-			"Hyde1\\EloquentMigrations\\": "src/"
-		},
-		"files": [
-			"src/helpers.php"
-		]
-	},
-	"bin": ["bin/elmigrator"],
-	"description": "Use Eloquent migration system without Laravel"
+        "illuminate/console": "^12.0",
+        "illuminate/filesystem": "^12.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.95",
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-phpunit": "^2.0",
+        "phpunit/phpunit": "^12.5",
+        "slevomat/coding-standard": "^8.31",
+        "squizlabs/php_codesniffer": "^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Hyde1\\EloquentMigrations\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Hyde1\\EloquentMigrations\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "@php vendor/bin/phpunit",
+        "test-unit": "@php vendor/bin/phpunit --testsuite=unit",
+        "test-integration": "@php vendor/bin/phpunit --testsuite=integration",
+        "test-documented-bugs": "@php vendor/bin/phpunit --group=documented-bug --do-not-fail-on-empty-test-suite",
+        "phpstan": "@php vendor/bin/phpstan analyse --memory-limit=1G",
+        "phpstan-baseline": "@php vendor/bin/phpstan analyse --memory-limit=1G --generate-baseline=phpstan-baseline.neon --allow-empty-baseline",
+        "phpcs": "@php vendor/bin/phpcs",
+        "phpcbf": "@php vendor/bin/phpcbf",
+        "cs-check": "@php vendor/bin/php-cs-fixer check --diff",
+        "cs-fix": "@php vendor/bin/php-cs-fixer fix",
+        "lint": [
+            "@cs-check",
+            "@phpcs",
+            "@phpstan"
+        ]
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": false
+        }
+    },
+    "bin": ["bin/elmigrator"],
+    "description": "Use Eloquent migration system without Laravel"
 }
