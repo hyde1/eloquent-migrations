@@ -70,6 +70,11 @@ final class InitCommandTest extends IntegrationTestCase
     {
         // Given
         mkdir($this->workingDirectory . '/readonly', 0o555);
+        if (is_writable($this->workingDirectory . '/readonly')) {
+            // e.g. run as root, permissions are not enforced
+            chmod($this->workingDirectory . '/readonly', 0o755);
+            $this->markTestSkipped('The read-only directory is writable by the current user');
+        }
 
         // Then
         $this->expectException(\InvalidArgumentException::class);

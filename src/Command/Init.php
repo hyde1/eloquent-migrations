@@ -100,7 +100,10 @@ class Init extends Command
                 $outputPathBinFile,
             ));
         }
-        chmod($outputPathBinFile, 0o755);
+        if (!chmod($outputPathBinFile, 0o755)) {
+            // The binary is written, init keeps succeeding: it can still be run with php
+            $output->writeln("<comment>Could not make $outputPathBinFile executable, run chmod +x on it</comment>");
+        }
 
         $output->writeln("<info>Created</info> $outputPathBinFile");
     }
