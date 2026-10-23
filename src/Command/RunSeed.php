@@ -131,11 +131,31 @@ class RunSeed extends AbstractCommand
 
             ksort($seeds);
             $this->seeds = $seeds;
+            $this->warnAboutUnknownDependencies($seeds);
+            $this->seeds = $this->orderSeedsByDependencies($seeds);
         }
 
-        $this->seeds = $this->orderSeedsByDependencies($this->seeds);
-
         return $this->seeds;
+    }
+
+    /**
+     * Dependencies are ordered among the seeders of the seeds directory, the other ones are ignored.
+     *
+     * @param array<string, Seeder> $seeds
+     */
+    private function warnAboutUnknownDependencies(array $seeds): void
+    {
+        foreach ($seeds as $seed) {
+            foreach ($seed->getDependencies() as $dependency) {
+                if (!array_key_exists($dependency, $seeds)) {
+                    $this->output->writeln(sprintf(
+                        '<comment>The seeder "%s" depends on "%s", which is not in the seeds directory: this dependency is ignored</comment>',
+                        $seed->getName(),
+                        $dependency,
+                    ));
+                }
+            }
+        }
     }
 
     /**
@@ -148,17 +168,24 @@ class RunSeed extends AbstractCommand
 
     /**
      * @param array<string, Seeder> $seeds
+     * @param list<string> $dependents Seeders whose dependencies are being ordered, to detect circular dependencies
      * @return array<string, Seeder>
      */
-    private function orderSeedsByDependencies(array $seeds): array
+    private function orderSeedsByDependencies(array $seeds, array $dependents = []): array
     {
         $orderedSeeds = [];
         foreach ($seeds as $seed) {
             $key = get_class($seed);
+            if (in_array($key, $dependents, true)) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Circular dependency between seeders: %s',
+                    implode(' -> ', [...$dependents, $key]),
+                ));
+            }
             $dependencies = $this->getSeedDependenciesInstances($seed);
             $orderedSeeds[$key] = $seed;
             if (!empty($dependencies)) {
-                $orderedSeeds = array_merge($this->orderSeedsByDependencies($dependencies), $orderedSeeds);
+                $orderedSeeds = array_merge($this->orderSeedsByDependencies($dependencies, [...$dependents, $key]), $orderedSeeds);
             }
         }
 

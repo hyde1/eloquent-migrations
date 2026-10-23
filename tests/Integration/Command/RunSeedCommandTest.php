@@ -124,6 +124,44 @@ final class RunSeedCommandTest extends IntegrationTestCase
         $this->runCommand('seed:run');
     }
 
+    /**
+     * Seeders depending on each other cannot be ordered (Chicken depends on Egg which depends on Chicken).
+     * Checks the cycle is reported instead of recursing until the PHP stack is exhausted.
+     */
+    public function testRejectsCircularDependencies(): void
+    {
+        // Given
+        $this->writeConfig(options: ['seeds' => self::seedersFixturePath('circular_dependencies')]);
+
+        // Then
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Circular dependency between seeders: Database\Seeders\ChickenSeeder -> Database\Seeders\EggSeeder -> Database\Seeders\ChickenSeeder');
+
+        // When
+        $this->runCommand('seed:run');
+    }
+
+    /**
+     * A dependency that is not in the seeds directory (removed seeder, typo) cannot be ordered.
+     * Checks the seeder still runs, as before, but the ignored dependency is reported.
+     */
+    public function testWarnsAboutADependencyMissingFromTheSeedsDirectory(): void
+    {
+        // Given
+        $this->writeConfig(options: ['seeds' => self::seedersFixturePath('unknown_dependency')]);
+
+        // When
+        $tester = $this->runCommand('seed:run');
+
+        // Then
+        $this->assertCommandSucceeded($tester);
+        $this->assertSame(['orphan'], $this->seedRuns());
+        $this->assertStringContainsString(
+            'The seeder "Database\Seeders\OrphanSeeder" depends on "Database\Seeders\MissingSeeder", which is not in the seeds directory: this dependency is ignored',
+            $tester->getDisplay(),
+        );
+    }
+
     public function testRunsSeedersOnTheConnectionGivenAsOption(): void
     {
         // Given
