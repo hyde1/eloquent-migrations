@@ -37,7 +37,7 @@ abstract class AbstractCommand extends Command
 
     protected function loadConfig(InputInterface $input): void
     {
-        $this->configFile = (string)$input->getOption('config');
+        $this->configFile = (string) $input->getOption('config');
 
         $pathConfigFile = getcwd() . DIRECTORY_SEPARATOR . $this->configFile;
 
@@ -52,12 +52,12 @@ abstract class AbstractCommand extends Command
 
     protected function getMigrationPath(): string
     {
-        return (string)$this->config['paths']['migrations'];
+        return (string) $this->config['paths']['migrations'];
     }
 
     protected function getSeedPath(): string
     {
-        return (string)$this->config['paths']['seeds'];
+        return (string) $this->config['paths']['seeds'];
     }
 
     protected function getDb(): DatabaseManager
@@ -72,7 +72,7 @@ abstract class AbstractCommand extends Command
 
     protected function getMigrationTable(): string
     {
-        return (string)$this->config['migration_table'];
+        return (string) $this->config['migration_table'];
     }
 
     protected function table(array $headers, array $contents)
@@ -146,7 +146,7 @@ abstract class AbstractCommand extends Command
         $arguments['--config'] = $this->configFile;
         return $this->getApplication()->find($command)->run(
             new ArrayInput($arguments),
-            $this->output
+            $this->output,
         );
     }
 }

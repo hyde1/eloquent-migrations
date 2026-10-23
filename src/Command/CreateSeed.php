@@ -40,7 +40,7 @@ class CreateSeed extends AbstractCommand
         if ($ret === false) {
             throw new \RuntimeException(sprintf(
                 'Cannot write seed file: %s',
-                $path
+                $path,
             ));
         }
         $output->writeln("<info>Seed created</info> $path");
@@ -55,7 +55,7 @@ class CreateSeed extends AbstractCommand
         if (!preg_match('/^[A-Z][a-zA-Z0-9]*$/', $className)) {
             throw new \InvalidArgumentException(sprintf(
                 'This seeder name is not a valid PHP CamelCase Class name: %s',
-                $className
+                $className,
             ));
         }
 
@@ -69,7 +69,7 @@ class CreateSeed extends AbstractCommand
         if (is_file($path)) {
             throw new \InvalidArgumentException(sprintf(
                 'This seeder name is already taken: %s',
-                $className
+                $className,
             ));
         }
 

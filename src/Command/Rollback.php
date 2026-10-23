@@ -5,13 +5,10 @@ namespace Hyde1\EloquentMigrations\Command;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Hyde1\EloquentMigrations\Migrations\Migrator;
 use Illuminate\Database\Migrations\DatabaseMigrationRepository;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Str;
-use Illuminate\Support\Composer;
 
 #[AsCommand('rollback')]
 class Rollback extends AbstractCommand
@@ -56,7 +53,7 @@ class Rollback extends AbstractCommand
                     [$this->getMigrationPath()],
                     [
                         'pretend' => $this->input->getOption('dry-run'),
-                        'step' => (int)$this->input->getOption('step'),
+                        'step' => (int) $this->input->getOption('step'),
                         'migration' => $this->input->getOption('migration'),
                     ],
                 );

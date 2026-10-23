@@ -105,7 +105,7 @@ class RunSeed extends AbstractCommand
                     throw new \InvalidArgumentException(sprintf(
                         'Could not find class "%s" in file "%s"',
                         $className,
-                        $file
+                        $file,
                     ));
                 }
 
@@ -114,7 +114,7 @@ class RunSeed extends AbstractCommand
                     throw new \InvalidArgumentException(sprintf(
                         'The class "%s" in file "%s" must extend \Hyde1\EloquentMigrations\Seeds\Seeder',
                         $className,
-                        $file
+                        $file,
                     ));
                 }
                 $seeds[$className] = $seed;

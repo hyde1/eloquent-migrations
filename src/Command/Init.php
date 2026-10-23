@@ -40,14 +40,14 @@ class Init extends Command
         if (!is_dir($path) && !mkdir($path)) {
             throw new InvalidArgumentException(sprintf(
                 'Cannot create `%s` directory',
-                $path
+                $path,
             ));
         }
 
         if (!is_writable($path) || is_file($path)) {
             throw new InvalidArgumentException(sprintf(
                 'The directory `%s` is not writable',
-                $path
+                $path,
             ));
         }
 
@@ -69,7 +69,7 @@ class Init extends Command
         if ($ret === false) {
             throw new RuntimeException(sprintf(
                 'The config file `%s` could not be written',
-                $configfile
+                $configfile,
             ));
         }
 
@@ -94,7 +94,7 @@ class Init extends Command
         if ($ret === false) {
             throw new RuntimeException(sprintf(
                 'Could not be written binary file to %s',
-                $outputPathBinFile
+                $outputPathBinFile,
             ));
         }
 

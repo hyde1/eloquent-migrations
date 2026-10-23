@@ -14,7 +14,7 @@ class Migrator extends \Illuminate\Database\Migrations\Migrator
     {
         $migration = parent::resolve($file);
         $migration->db = $this->resolveConnection(
-            $migration->getConnection()
+            $migration->getConnection(),
         );
         return $migration;
     }
@@ -29,7 +29,7 @@ class Migrator extends \Illuminate\Database\Migrations\Migrator
     {
         $migration = parent::resolvePath($path);
         $migration->db = $this->resolveConnection(
-            $migration->getConnection()
+            $migration->getConnection(),
         );
         return $migration;
     }

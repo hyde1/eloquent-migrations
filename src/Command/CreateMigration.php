@@ -65,7 +65,7 @@ class CreateMigration extends AbstractCommand
             $name,
             $this->getMigrationPath(),
             $table,
-            $create
+            $create,
         );
         $this->output->writeln("<info>Created Migration:</info> {$file}");
     }

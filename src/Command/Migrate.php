@@ -51,7 +51,7 @@ class Migrate extends AbstractCommand
             $this->migrator->setOutput(new OutputStyle($input, $output))
                 ->run([$this->getMigrationPath()], [
                     'pretend' => $this->input->getOption('dry-run'),
-                    'step' => (int)$this->input->getOption('step'),
+                    'step' => (int) $this->input->getOption('step'),
                 ]);
         });
 
