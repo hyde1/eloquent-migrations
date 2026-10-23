@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Hyde1\EloquentMigrations\Tests\Integration\Command;
 
 use Hyde1\EloquentMigrations\Tests\Support\IntegrationTestCase;
+use Hyde1\EloquentMigrations\Tests\Support\TestDatabase;
 
 final class StatusCommandTest extends IntegrationTestCase
 {
@@ -56,5 +57,24 @@ final class StatusCommandTest extends IntegrationTestCase
 
         // When
         $this->runCommand('status');
+    }
+
+    /**
+     * The --database option selects the connection whose repository is read.
+     * Checks the migrations applied on the secondary connection are reported as ran.
+     */
+    public function testReadsTheRepositoryOfTheConnectionGivenAsOption(): void
+    {
+        // Given
+        $this->skipUnlessDriver(TestDatabase::SQLITE);
+        $this->useMigrations('schema');
+        $this->runCommand('migrate', ['--database' => 'secondary']);
+
+        // When
+        $tester = $this->runCommand('status', ['--database' => 'secondary']);
+
+        // Then
+        $this->assertCommandSucceeded($tester);
+        $this->assertMatchesRegularExpression('/\|\s*Yes\s*\|\s*2024_01_04_000000_insert_default_user\s*\|\s*4\s*\|/', $tester->getDisplay());
     }
 }

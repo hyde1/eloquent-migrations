@@ -28,7 +28,7 @@ class CreateDatabase extends AbstractCommand
             $output->writeln('<error>Invalid database name</error>');
             return self::INVALID;
         }
-        $this->getDb()->statement('CREATE DATABASE ' . $dbName);
+        $this->getDb()->connection($this->database)->statement('CREATE DATABASE ' . $dbName);
 
         $output->writeln(sprintf('<info>Database `%s` created successfuly</info>', $dbName));
 
