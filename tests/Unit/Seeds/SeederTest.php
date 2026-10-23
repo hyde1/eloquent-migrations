@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Hyde1\EloquentMigrations\Tests\Unit\Seeds;
 
 use Hyde1\EloquentMigrations\Seeds\Seeder;
+use Hyde1\EloquentMigrations\Tests\Support\Doubles\ExposedSeeder;
 use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\Connection;
-use Illuminate\Database\Query\Builder;
 use PHPUnit\Framework\TestCase;
 
 final class SeederTest extends TestCase
@@ -58,7 +58,6 @@ final class SeederTest extends TestCase
         $builder = $seeder->table('users');
 
         // Then
-        $this->assertInstanceOf(Builder::class, $builder);
         $this->assertSame('users', $builder->from);
         $this->assertSame($connection, $builder->getConnection());
     }
@@ -80,23 +79,9 @@ final class SeederTest extends TestCase
     // 🛠️ Helpers
     // -------------------
 
-    private function makeSeeder(): Seeder
+    private function makeSeeder(): ExposedSeeder
     {
-        return new class () extends Seeder {
-            public function run(): void
-            {
-            }
-
-            public function exposedDb(): Connection
-            {
-                return $this->db();
-            }
-
-            public function exposedGetDb(): Connection
-            {
-                return $this->getDb();
-            }
-        };
+        return new ExposedSeeder();
     }
 
     private function makeSqliteConnection(): Connection

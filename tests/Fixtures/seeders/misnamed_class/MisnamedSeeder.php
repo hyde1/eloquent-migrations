@@ -6,7 +6,5 @@ use Hyde1\EloquentMigrations\Seeds\Seeder;
 
 class AnotherNameSeeder extends Seeder
 {
-    public function run(): void
-    {
-    }
+    public function run(): void {}
 }

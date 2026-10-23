@@ -18,6 +18,9 @@ final class ApplicationTest extends TestCase
     private const string APPLICATION_FILE = __DIR__ . '/../../app/elmigrator.php';
     private const string BIN_FILE = __DIR__ . '/../../bin/elmigrator';
 
+    /**
+     * @param class-string $class
+     */
     #[DataProvider('commandsProvider')]
     public function testRegistersTheCommand(string $name, string $class): void
     {

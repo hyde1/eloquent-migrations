@@ -6,6 +6,7 @@ use Hyde1\EloquentMigrations\Seeds\Seeder;
 
 class CommentSeeder extends Seeder
 {
+    /** @return list<class-string<Seeder>> */
     public function getDependencies(): array
     {
         return [

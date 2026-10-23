@@ -144,7 +144,7 @@ abstract class IntegrationTestCase extends TestCase
     /**
      * Loads a generated PHP file in a separate process, see tests/Support/inspect-php-file.php.
      *
-     * @return array{exitCode: int, output: string, returns_migration?: bool, declared_seeders?: list<string>}
+     * @return array<string, mixed> exitCode and output, plus the keys printed by the script when it succeeded
      */
     protected function inspectPhpFile(string $file): array
     {

@@ -171,7 +171,7 @@ final class RunSeedCommandTest extends IntegrationTestCase
     // -------------------
 
     /**
-     * @return list<string>
+     * @return array<mixed> Names of the seeders that ran, in execution order
      */
     private function seedRuns(string $connection = 'default'): array
     {

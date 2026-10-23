@@ -65,6 +65,18 @@ The connection can be customized with `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_U
 Tests asserting a known, not yet fixed, bug are tagged with the `documented-bug` group (`composer test-documented-bugs`).
 When a bug is fixed, the group is removed and the assertions are updated to the expected behavior.
 
+## Static analysis and coding standards
+
+```bash
+composer lint        # all the checks below
+composer phpstan     # PHPStan (level 8), errors existing before its introduction are in phpstan-baseline.neon
+composer cs-check    # PHP-CS-Fixer (composer cs-fix to fix)
+composer phpcs       # PHP_CodeSniffer with Slevomat type hints rules (composer phpcbf to fix)
+```
+
+The rules are aligned with the Zelty back-office ones. The `Static analysis` GitHub Actions workflow runs them on
+every pull request.
+
 ## Testing a new Illuminate version
 
 Before bumping `illuminate/*`, run the test suite against the new version. The script works in a temporary copy of
@@ -77,3 +89,5 @@ DB_CONNECTION=pgsql scripts/test-illuminate.sh dev-master --testsuite=integratio
 
 The GitHub Actions `Tests` workflow runs the suite on the supported range (lowest and highest dependencies) and on
 upcoming Illuminate versions (informational on pull requests, every Monday and on demand with a custom version).
+On upcoming versions PHPStan is run as well, to report the Illuminate APIs used by the library or by the test
+fixtures (written like project migrations and seeders) that were removed or changed.

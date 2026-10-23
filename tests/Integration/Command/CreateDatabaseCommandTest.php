@@ -65,6 +65,7 @@ final class CreateDatabaseCommandTest extends IntegrationTestCase
         return match (TestDatabase::driver()) {
             TestDatabase::PGSQL => $this->db()->selectOne('select 1 as found from pg_database where datname = ?', [$name]) !== null,
             TestDatabase::MYSQL => $this->db()->selectOne('select 1 as found from information_schema.schemata where schema_name = ?', [$name]) !== null,
+            default => throw new \LogicException('Databases cannot be created with ' . TestDatabase::driver()),
         };
     }
 

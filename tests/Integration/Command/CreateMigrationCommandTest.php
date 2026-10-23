@@ -39,6 +39,8 @@ final class CreateMigrationCommandTest extends IntegrationTestCase
     /**
      * Generated migrations are anonymous classes returned by the file, resolved by the Eloquent Migrator.
      * Checks every kind of generated file can be loaded and returns a library Migration.
+     *
+     * @param array<string, string> $options
      */
     #[DataProvider('stubsProvider')]
     public function testGeneratedMigrationIsALoadableMigration(string $name, array $options): void
@@ -57,6 +59,8 @@ final class CreateMigrationCommandTest extends IntegrationTestCase
     /**
      * End-to-end check of the update stub: generated, applied then rolled back without editing them.
      * Checks the migration is recorded then removed from the repository.
+     *
+     * @param array<string, string> $options
      */
     #[DataProvider('runnableMigrationsProvider')]
     public function testGeneratedMigrationCanBeMigratedAndRolledBack(string $name, array $options): void

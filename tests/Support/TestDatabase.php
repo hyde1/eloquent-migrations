@@ -73,6 +73,7 @@ final class TestDatabase
                 'collation' => 'utf8mb4_unicode_ci',
                 'prefix' => '',
             ],
+            default => throw new \LogicException('Unsupported driver'),
         };
     }
 

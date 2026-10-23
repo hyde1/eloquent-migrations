@@ -39,18 +39,12 @@ final class MigratorTest extends TestCase
         );
     }
 
-    public function testExtendsTheEloquentMigrator(): void
-    {
-        $this->assertInstanceOf(\Illuminate\Database\Migrations\Migrator::class, $this->migrator);
-    }
-
     public function testInjectsTheDefaultConnectionIntoAnonymousMigrations(): void
     {
         // When
         $migration = $this->resolvePath(self::FIXTURES_PATH . '/schema/2024_01_01_000000_create_users_table.php');
 
         // Then
-        $this->assertInstanceOf(Migration::class, $migration);
         $this->assertSame($this->databaseManager->connection('default'), $migration->db);
     }
 
@@ -74,7 +68,7 @@ final class MigratorTest extends TestCase
     public function testInjectsTheConnectionSelectedWithUsingConnection(): void
     {
         // When
-        $migration = $this->migrator->usingConnection('secondary', fn (): object => $this->resolvePath(
+        $migration = $this->migrator->usingConnection('secondary', fn (): Migration => $this->resolvePath(
             self::FIXTURES_PATH . '/schema/2024_01_01_000000_create_users_table.php',
         ));
 
@@ -125,12 +119,12 @@ final class MigratorTest extends TestCase
     // 🛠️ Helpers
     // -------------------
 
-    private function resolvePath(string $path): object
+    private function resolvePath(string $path): Migration
     {
         $resolvePath = new \ReflectionMethod($this->migrator, 'resolvePath');
 
         $migration = $resolvePath->invoke($this->migrator, (string) realpath($path));
-        $this->assertIsObject($migration);
+        $this->assertInstanceOf(Migration::class, $migration);
 
         return $migration;
     }

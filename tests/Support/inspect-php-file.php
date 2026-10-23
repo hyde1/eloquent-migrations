@@ -17,7 +17,7 @@ use Hyde1\EloquentMigrations\Seeds\Seeder;
 require __DIR__ . '/../../vendor/autoload.php';
 
 $declaredBefore = get_declared_classes();
-$returned = require $argv[1];
+$returned = require $_SERVER['argv'][1];
 $declared = array_diff(get_declared_classes(), $declaredBefore);
 
 echo json_encode([

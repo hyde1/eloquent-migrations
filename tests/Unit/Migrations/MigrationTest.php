@@ -5,18 +5,13 @@ declare(strict_types=1);
 namespace Hyde1\EloquentMigrations\Tests\Unit\Migrations;
 
 use Hyde1\EloquentMigrations\Migrations\Migration;
+use Hyde1\EloquentMigrations\Tests\Support\Doubles\ExposedMigration;
 use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\Connection;
-use Illuminate\Database\Schema\Builder;
 use PHPUnit\Framework\TestCase;
 
 final class MigrationTest extends TestCase
 {
-    public function testExtendsTheEloquentMigration(): void
-    {
-        $this->assertInstanceOf(\Illuminate\Database\Migrations\Migration::class, $this->makeMigration());
-    }
-
     /**
      * Eloquent decides to wrap a migration in a transaction by reading this public property.
      * Checks it is still inherited from Eloquent with the default value expected by existing migrations.
@@ -42,7 +37,6 @@ final class MigrationTest extends TestCase
 
         // Then
         $this->assertSame($connection, $migration->exposedDb());
-        $this->assertInstanceOf(Builder::class, $migration->exposedSchema());
         $this->assertSame($connection, $migration->exposedSchema()->getConnection());
     }
 
@@ -67,27 +61,9 @@ final class MigrationTest extends TestCase
     // 🛠️ Helpers
     // -------------------
 
-    private function makeMigration(): Migration
+    private function makeMigration(): ExposedMigration
     {
-        return new class () extends Migration {
-            public function up(): void
-            {
-            }
-
-            public function down(): void
-            {
-            }
-
-            public function exposedDb(): Connection
-            {
-                return $this->db();
-            }
-
-            public function exposedSchema(): Builder
-            {
-                return $this->schema();
-            }
-        };
+        return new ExposedMigration();
     }
 
     private function makeSqliteConnection(): Connection

@@ -24,9 +24,7 @@ final class ScriptedQuestionHelper extends QuestionHelper
     /**
      * @param list<string> $answers
      */
-    public function __construct(private array $answers)
-    {
-    }
+    public function __construct(private array $answers) {}
 
     public function ask(InputInterface $input, OutputInterface $output, Question $question): mixed
     {

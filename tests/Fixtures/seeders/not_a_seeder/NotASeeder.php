@@ -4,7 +4,5 @@ namespace Database\Seeders;
 
 class NotASeeder
 {
-    public function run(): void
-    {
-    }
+    public function run(): void {}
 }
