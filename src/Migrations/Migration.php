@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Hyde1\EloquentMigrations\Migrations;
 
 use Illuminate\Database\Connection;
