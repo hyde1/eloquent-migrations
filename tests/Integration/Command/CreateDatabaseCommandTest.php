@@ -30,15 +30,16 @@ final class CreateDatabaseCommandTest extends IntegrationTestCase
     {
         // Given
         $this->skipUnlessDriver(TestDatabase::PGSQL, TestDatabase::MYSQL);
-        $this->createdDatabase = 'elmigrator_created_' . bin2hex(random_bytes(4));
+        $databaseName = 'elmigrator_created_' . bin2hex(random_bytes(4));
+        $this->createdDatabase = $databaseName;
 
         // When
-        $tester = $this->runCommand('create:database', ['name' => $this->createdDatabase]);
+        $tester = $this->runCommand('create:database', ['name' => $databaseName]);
 
         // Then
         $this->assertCommandSucceeded($tester);
-        $this->assertStringContainsString(sprintf('Database `%s` created successfuly', $this->createdDatabase), $tester->getDisplay());
-        $this->assertTrue($this->databaseExists($this->createdDatabase));
+        $this->assertStringContainsString(sprintf('Database `%s` created successfuly', $databaseName), $tester->getDisplay());
+        $this->assertTrue($this->databaseExists($databaseName));
     }
 
     /**
