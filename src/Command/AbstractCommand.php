@@ -38,16 +38,40 @@ abstract class AbstractCommand extends Command
     protected function loadConfig(InputInterface $input): void
     {
         $this->configFile = (string) $input->getOption('config');
-
-        $pathConfigFile = getcwd() . DIRECTORY_SEPARATOR . $this->configFile;
-
-        $this->config = file_exists($pathConfigFile) ? require $pathConfigFile : (isset($_ENV['ELMIGRATOR_CONFIG']) ? require getcwd() . DIRECTORY_SEPARATOR . $_ENV['ELMIGRATOR_CONFIG'] : null);
+        $this->config = $this->requireConfig();
         $this->environment = $input->getOption('env') ?? $this->config['default_environment'];
         $this->database = $input->getOption('database') ?? $this->config['database'] ?? null;
+    }
 
-        if ($this->configFile === null) {
-            $this->output->writeln('<danger>could not find nothing configuration a file. Set throught --config option or environment variable ELMIGRATOR_CONFIG</danger>');
+    /**
+     * Load the configuration file given with --config, or else the one from the ELMIGRATOR_CONFIG environment variable.
+     *
+     * @return array<string, mixed>
+     */
+    private function requireConfig(): array
+    {
+        $configFiles = [getcwd() . DIRECTORY_SEPARATOR . $this->configFile];
+        if (isset($_ENV['ELMIGRATOR_CONFIG'])) {
+            $configFiles[] = getcwd() . DIRECTORY_SEPARATOR . $_ENV['ELMIGRATOR_CONFIG'];
         }
+
+        foreach ($configFiles as $configFile) {
+            if (!file_exists($configFile)) {
+                continue;
+            }
+
+            $config = require $configFile;
+            if (!is_array($config)) {
+                throw new \RuntimeException(sprintf('The configuration file "%s" must return an array', $configFile));
+            }
+
+            return $config;
+        }
+
+        throw new \RuntimeException(sprintf(
+            'Could not find the configuration file "%s". Set it with the --config option or the ELMIGRATOR_CONFIG environment variable.',
+            $this->configFile,
+        ));
     }
 
     protected function getMigrationPath(): string

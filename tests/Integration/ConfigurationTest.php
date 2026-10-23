@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Hyde1\EloquentMigrations\Tests\Integration;
 
 use Hyde1\EloquentMigrations\Tests\Support\IntegrationTestCase;
-use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Projects can have several config files (e.g. elmigrator.php and elmigrator-bms.php in the BO), selected with
@@ -91,19 +90,27 @@ final class ConfigurationTest extends IntegrationTestCase
         $this->assertSame([], glob($this->migrationsDirectory() . '/*.php'));
     }
 
-    /**
-     * Documents a known bug: without any config file, null is assigned to the typed $config property.
-     * Checks the command crashes with a TypeError.
-     * Expected behavior: an explicit message asks to use --config or ELMIGRATOR_CONFIG.
-     */
-    #[Group('documented-bug')]
-    public function testFailsWithATypeErrorWhenNoConfigFileIsFound(): void
+    public function testFailsWithAnExplicitMessageWhenNoConfigFileIsFound(): void
     {
         // Given
         unlink($this->workingDirectory . '/elmigrator.php');
 
         // Then
-        $this->expectException(\TypeError::class);
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Could not find the configuration file "elmigrator.php". Set it with the --config option or the ELMIGRATOR_CONFIG environment variable.');
+
+        // When
+        $this->runCommand('status');
+    }
+
+    public function testFailsWhenTheConfigFileDoesNotReturnAnArray(): void
+    {
+        // Given
+        file_put_contents($this->workingDirectory . '/elmigrator.php', '<?php // returns nothing');
+
+        // Then
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('elmigrator.php" must return an array');
 
         // When
         $this->runCommand('status');
