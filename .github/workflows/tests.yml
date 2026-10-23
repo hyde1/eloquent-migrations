@@ -100,3 +100,8 @@ jobs:
         run: vendor/bin/phpunit
         env:
           DB_CONNECTION: ${{ matrix.database }}
+
+      - name: PHPStan
+        # Reports the Illuminate APIs used by the library and the test fixtures that were removed or changed
+        if: ${{ !cancelled() && matrix.database == 'sqlite' }}
+        run: vendor/bin/phpstan analyse --no-progress --memory-limit=1G --error-format=github

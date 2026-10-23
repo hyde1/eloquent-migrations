@@ -1,0 +1,59 @@
+name: Static analysis
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  phpstan:
+    name: PHPStan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          coverage: none
+
+      - uses: ramsey/composer-install@v3
+
+      - name: Restore PHPStan result cache
+        uses: actions/cache@v6
+        with:
+          path: .phpstan.cache
+          key: phpstan-${{ github.run_id }}
+          restore-keys: phpstan-
+
+      - name: PHPStan
+        run: composer phpstan -- --no-progress --error-format=github
+
+  coding-standards:
+    name: Coding standards
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          coverage: none
+          tools: cs2pr
+
+      - uses: ramsey/composer-install@v3
+
+      - name: PHP-CS-Fixer
+        run: vendor/bin/php-cs-fixer check --diff --format=checkstyle | cs2pr
+
+      - name: PHP_CodeSniffer
+        if: ${{ !cancelled() }}
+        run: vendor/bin/phpcs -q --report=checkstyle | cs2pr
