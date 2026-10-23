@@ -33,4 +33,24 @@ class Migrator extends \Illuminate\Database\Migrations\Migrator
         );
         return $migration;
     }
+
+    /**
+     * Get the migrations for a rollback operation.
+     *
+     * Adds the "migration" option, to rollback a single migration whatever its batch.
+     *
+     * @param  array<string, mixed>  $options
+     * @return list<object>
+     */
+    protected function getMigrationsForRollback(array $options): array
+    {
+        $migration = $options['migration'] ?? null;
+        if (!is_string($migration) || $migration === '') {
+            return parent::getMigrationsForRollback($options);
+        }
+
+        return in_array($migration, $this->repository->getRan(), true)
+            ? [(object) ['migration' => $migration]]
+            : [];
+    }
 }

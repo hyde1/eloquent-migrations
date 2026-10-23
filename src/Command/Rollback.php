@@ -33,7 +33,7 @@ class Rollback extends AbstractCommand
             ->setDescription('Rollback migrations')
             ->addOption('dry-run', 'x', InputOption::VALUE_NONE, 'Dump query to standard output instead of executing it')
             ->addOption('step', 's', InputOption::VALUE_REQUIRED, 'Number of migrations to rollback', 0)
-            ->addOption('migration', 'm', InputOption::VALUE_REQUIRED, 'Migrate a specific migration')
+            ->addOption('migration', 'm', InputOption::VALUE_REQUIRED, 'Rollback a specific migration (file name without extension), whatever its batch')
             ->setHelp('Rollback the last migration' . PHP_EOL);
 
         parent::configure();

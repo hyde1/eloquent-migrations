@@ -6,7 +6,6 @@ namespace Hyde1\EloquentMigrations\Tests\Integration\Command;
 
 use Hyde1\EloquentMigrations\Tests\Support\IntegrationTestCase;
 use Hyde1\EloquentMigrations\Tests\Support\TestDatabase;
-use PHPUnit\Framework\Attributes\Group;
 
 final class RollbackCommandTest extends IntegrationTestCase
 {
@@ -138,22 +137,41 @@ final class RollbackCommandTest extends IntegrationTestCase
     }
 
     /**
-     * Documents a known bug: the --migration option is not supported by the Eloquent Migrator, which ignores it.
-     * Checks asking to rollback the first migration rolls back the last batch instead.
-     * Expected behavior: only the given migration is rolled back, or the option is removed.
+     * --migration rolls back a single migration, whatever its batch, e.g. to replay a migration being written.
+     * Checks only the given migration is rolled back, the following ones being kept.
      */
-    #[Group('documented-bug')]
-    public function testMigrationOptionIsIgnored(): void
+    public function testRollsBackTheGivenMigrationOnly(): void
     {
         // Given
         $this->useMigrations('schema');
         $this->runCommand('migrate');
 
         // When
-        $this->runCommand('rollback', ['--migration' => '2024_01_01_000000_create_users_table']);
+        $tester = $this->runCommand('rollback', ['--migration' => '2024_01_02_000000_create_posts_table']);
 
         // Then
-        $this->assertArrayHasKey('2024_01_01_000000_create_users_table', $this->ranMigrations());
-        $this->assertArrayNotHasKey('2024_01_04_000000_insert_default_user', $this->ranMigrations());
+        $this->assertCommandSucceeded($tester);
+        $this->assertTableMissing('posts');
+        $this->assertSame([
+            '2024_01_01_000000_create_users_table' => 1,
+            '2024_01_03_000000_update_users_table' => 3,
+            '2024_01_04_000000_insert_default_user' => 4,
+        ], $this->ranMigrations());
+    }
+
+    public function testDoesNothingWhenTheGivenMigrationDidNotRun(): void
+    {
+        // Given
+        $this->useMigrations('schema');
+        $this->runCommand('migrate', ['--step' => '0']);
+        $this->runCommand('rollback', ['--migration' => '2024_01_04_000000_insert_default_user']);
+
+        // When
+        $tester = $this->runCommand('rollback', ['--migration' => '2024_01_04_000000_insert_default_user']);
+
+        // Then
+        $this->assertCommandSucceeded($tester);
+        $this->assertStringContainsString('Nothing to rollback', $tester->getDisplay());
+        $this->assertCount(3, $this->ranMigrations());
     }
 }
