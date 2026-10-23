@@ -34,43 +34,45 @@ class Init extends Command
     {
         $path = (string) $input->getArgument('path');
 
-        if (is_dir($path)) {
-            return $path;
+        $created = false;
+        if (!is_dir($path)) {
+            if (!mkdir($path)) {
+                throw new InvalidArgumentException(sprintf(
+                    'Cannot create `%s` directory',
+                    $path,
+                ));
+            }
+            $created = true;
         }
 
-        if (!is_dir($path) && !mkdir($path)) {
-            throw new InvalidArgumentException(sprintf(
-                'Cannot create `%s` directory',
-                $path,
-            ));
-        }
-
-        if (!is_writable($path) || is_file($path)) {
+        if (!is_writable($path)) {
             throw new InvalidArgumentException(sprintf(
                 'The directory `%s` is not writable',
                 $path,
             ));
         }
 
-        $output->writeln("<info>created</info> $path");
+        if ($created) {
+            $output->writeln("<info>created</info> $path");
+        }
         return $path;
     }
 
     protected function createConfig(string $path, OutputInterface $output): void
     {
-        $configfile = 'elmigrator.php';
-        $contents = file_get_Contents(__DIR__ . '/../../data/' . $configfile . '.dist');
+        $configFile = 'elmigrator.php';
+        $contents = file_get_contents(__DIR__ . '/../../data/' . $configFile . '.dist');
 
         if ($contents === false) {
             throw new RuntimeException('Could not find template for config file');
         }
 
-        $outputPath = $path . DIRECTORY_SEPARATOR . $configfile;
+        $outputPath = $path . DIRECTORY_SEPARATOR . $configFile;
         $ret = file_put_contents($outputPath, $contents);
         if ($ret === false) {
             throw new RuntimeException(sprintf(
                 'The config file `%s` could not be written',
-                $configfile,
+                $configFile,
             ));
         }
 
@@ -94,10 +96,11 @@ class Init extends Command
 
         if ($ret === false) {
             throw new RuntimeException(sprintf(
-                'Could not be written binary file to %s',
+                'Could not write the binary file to %s',
                 $outputPathBinFile,
             ));
         }
+        chmod($outputPathBinFile, 0o755);
 
         $output->writeln("<info>Created</info> $outputPathBinFile");
     }
