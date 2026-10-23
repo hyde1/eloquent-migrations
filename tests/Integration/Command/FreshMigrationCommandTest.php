@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Hyde1\EloquentMigrations\Tests\Integration\Command;
 
 use Hyde1\EloquentMigrations\Tests\Support\IntegrationTestCase;
-use Illuminate\Database\QueryException;
 use Illuminate\Database\Schema\Blueprint;
 use PHPUnit\Framework\Attributes\Group;
 
@@ -114,24 +113,24 @@ final class FreshMigrationCommandTest extends IntegrationTestCase
     }
 
     /**
-     * Documents a known bug: migrate:fresh forwards --force to migrate, but migrate does not forward it to
-     * migrate:install, which asks for a confirmation in production once all tables are dropped.
-     * Checks "migrate:fresh --force" fails in production when the confirmation is not answered (e.g. in a CI).
-     * Expected behavior: the database is rebuilt without any question.
+     * --force must apply to the whole rebuild, including the migrate and seed:run sub-commands.
+     * Checks the database is rebuilt in production without any question.
      */
-    #[Group('documented-bug')]
-    public function testForceIsNotForwardedToTheRepositoryInstallationInProduction(): void
+    public function testRunsInProductionWithForce(): void
     {
         // Given
-        $this->writeConfig(options: ['environment' => 'production']);
-        $this->useMigrations('schema');
-        $this->runCommand('migrate', ['--force' => true], ['yes']);
-
-        // Then
-        $this->expectException(QueryException::class);
+        $this->writeConfig(options: ['environment' => 'production', 'seeds' => self::seedersFixturePath('dependencies')]);
+        $this->useMigrations('seed_runs');
+        $this->runCommand('migrate', ['--force' => true]);
 
         // When
-        $this->runCommand('migrate:fresh', ['--force' => true]);
+        $tester = $this->runCommand('migrate:fresh', ['--force' => true, '--seed' => true]);
+
+        // Then
+        $this->assertCommandSucceeded($tester);
+        $this->assertSame([], $this->questionHelper->getAskedQuestions());
+        $this->assertCount(1, $this->ranMigrations());
+        $this->assertSame(['user', 'post', 'comment'], $this->db()->table('seed_runs')->orderBy('id')->pluck('name')->all());
     }
 
     // -------------------

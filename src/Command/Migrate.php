@@ -66,8 +66,10 @@ class Migrate extends AbstractCommand
     protected function prepareDatabase()
     {
         if (! $this->migrator->repositoryExists()) {
+            // Running the migrations was already confirmed
             $this->call('migrate:install', array_filter([
                 '--database' => $this->database,
+                '--force' => true,
             ]));
         }
     }

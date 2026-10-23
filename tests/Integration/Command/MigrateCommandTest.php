@@ -6,7 +6,6 @@ namespace Hyde1\EloquentMigrations\Tests\Integration\Command;
 
 use Hyde1\EloquentMigrations\Tests\Support\IntegrationTestCase;
 use Hyde1\EloquentMigrations\Tests\Support\TestDatabase;
-use PHPUnit\Framework\Attributes\Group;
 
 final class MigrateCommandTest extends IntegrationTestCase
 {
@@ -238,13 +237,15 @@ final class MigrateCommandTest extends IntegrationTestCase
         $this->assertTableMissing('users');
     }
 
-    public function testRunsInProductionWhenTheConfirmationIsAccepted(): void
+    /**
+     * migrate installs the repository through the migrate:install sub-command, which has its own confirmation.
+     * Checks a single confirmation is asked in production, the sub-command being forced once migrate is confirmed.
+     */
+    public function testAsksASingleConfirmationInProduction(): void
     {
         // Given
         $this->writeConfig(options: ['environment' => 'production']);
         $this->useMigrations('schema');
-        // Avoids the migrate:install confirmation, see testForceIsNotForwardedToTheRepositoryInstallationInProduction()
-        $this->runCommand('migrate:install', ['--force' => true]);
 
         // When
         $tester = $this->runCommand('migrate', [], ['yes']);
@@ -269,28 +270,22 @@ final class MigrateCommandTest extends IntegrationTestCase
     }
 
     /**
-     * Documents a known bug: migrate calls migrate:install without forwarding --force, so the sub-command asks for
-     * its own confirmation in production. Checks a non-interactive "migrate --force" on a fresh production database
-     * fails because the repository table was not created.
-     * Expected behavior: --force also applies to the repository creation and the migrations run.
+     * --force skips the production confirmation, typically in deployment pipelines where nobody can answer.
+     * Checks the repository is installed and the migrations run on a fresh database without any question.
      */
-    #[Group('documented-bug')]
-    public function testForceIsNotForwardedToTheRepositoryInstallationInProduction(): void
+    public function testRunsInProductionWithForce(): void
     {
         // Given
         $this->writeConfig(options: ['environment' => 'production']);
         $this->useMigrations('schema');
 
         // When
-        try {
-            $this->runCommand('migrate', ['--force' => true]);
-            $this->fail('The missing repository table should have made the command fail');
-        } catch (\Illuminate\Database\QueryException) {
-        }
+        $tester = $this->runCommand('migrate', ['--force' => true]);
 
         // Then
-        $this->assertTableMissing(self::MIGRATION_TABLE);
-        $this->assertTableMissing('users');
+        $this->assertCommandSucceeded($tester);
+        $this->assertSame([], $this->questionHelper->getAskedQuestions());
+        $this->assertCount(4, $this->ranMigrations());
     }
 
     // -------------------
