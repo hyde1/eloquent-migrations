@@ -11,6 +11,20 @@ vendor/bin/elmigrator status # Display the migrations status
 vendor/bin/elmigrator seed:create MySeed # Create a new seed
 vendor/bin/elmigrator seed:run # Run all seeds
 ```
+# Compatibility
+
+| Version    | Illuminate (Eloquent) | PHP    |
+|------------|-----------------------|--------|
+| 12.2+      | 12.x, 13.x            | >= 8.4 |
+| 12.0, 12.1 | 12.x                  | >= 8.4 |
+| 11.x       | 11.x                  | >= 8.2 |
+| 10.x       | 10.x                  | >= 8.1 |
+| 4.x        | 9.x                   | >= 7.4 |
+
+Since 12.2, versions follow [semantic versioning](https://semver.org) and no longer match the Illuminate major version:
+supporting a new Illuminate version without breaking change is a minor release, a breaking change (including dropping
+an Illuminate or PHP version) is a major release.
+
 # After run init
 Will created binary file in directory when running current process. For custom configuration file settings, it is possible to set the environment variable `ELMIGRATOR_CONFIG` or change the binary file to similar:
 
@@ -79,7 +93,7 @@ every pull request.
 
 ## Testing a new Illuminate version
 
-Before bumping `illuminate/*`, run the test suite against the new version. The script works in a temporary copy of
+Before supporting a new Illuminate version, run the test suite against it. The script works in a temporary copy of
 the project, `composer.json`, `composer.lock` and `vendor/` are left untouched:
 
 ```bash
