@@ -28,7 +28,6 @@ class Status extends AbstractCommand
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->bootstrap($input, $output);
         $this->repository = new DatabaseMigrationRepository($this->getDb(), $this->getMigrationTable());
         $this->repository->setSource($this->getConnectionName());
         $this->migrator = new Migrator($this->repository, $this->getDb(), new Filesystem());

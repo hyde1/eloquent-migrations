@@ -30,8 +30,25 @@ abstract class AbstractCommand extends Command
         $this->addOption('database', '-d', InputOption::VALUE_OPTIONAL, 'The database connection to use');
     }
 
+    /**
+     * Loads the configuration before execute().
+     */
+    protected function initialize(InputInterface $input, OutputInterface $output): void
+    {
+        parent::initialize($input, $output);
+        $this->bootstrap($input, $output);
+    }
+
+    /**
+     * Called by initialize(). Commands extending this class may still call it from execute(): the configuration is
+     * not loaded twice for the same run.
+     */
     protected function bootstrap(InputInterface $input, OutputInterface $output): void
     {
+        if (isset($this->input, $this->output) && $this->input === $input && $this->output === $output) {
+            return;
+        }
+
         $this->input = $input;
         $this->output = $output;
         $this->loadConfig($input);

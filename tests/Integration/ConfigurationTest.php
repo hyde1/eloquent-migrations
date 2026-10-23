@@ -4,7 +4,12 @@ declare(strict_types=1);
 
 namespace Hyde1\EloquentMigrations\Tests\Integration;
 
+use Hyde1\EloquentMigrations\Command\AbstractCommand;
 use Hyde1\EloquentMigrations\Tests\Support\IntegrationTestCase;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Tester\ApplicationTester;
 
 /**
  * Projects can have several config files (e.g. elmigrator.php and elmigrator-bms.php in the BO), selected with
@@ -88,6 +93,47 @@ final class ConfigurationTest extends IntegrationTestCase
         $this->assertCommandSucceeded($tester);
         $this->assertCount(1, glob($this->workingDirectory . '/db/migrations/*_create_widgets_table.php') ?: []);
         $this->assertSame([], glob($this->migrationsDirectory() . '/*.php'));
+    }
+
+    /**
+     * Commands are bootstrapped by AbstractCommand::initialize(). Commands written before, extending AbstractCommand
+     * outside of this library, still call bootstrap() in execute(). Checks they keep working and the config file is
+     * required once, as it may have side effects (e.g. Capsule::setAsGlobal()).
+     */
+    public function testCommandsCallingBootstrapThemselvesLoadTheConfigOnce(): void
+    {
+        // Given
+        $configFile = $this->workingDirectory . '/elmigrator.php';
+        file_put_contents($configFile, str_replace(
+            '<?php',
+            "<?php\n\$GLOBALS['elmigrator_config_loads'] = (\$GLOBALS['elmigrator_config_loads'] ?? 0) + 1;",
+            (string) file_get_contents($configFile),
+        ));
+        $GLOBALS['elmigrator_config_loads'] = 0;
+
+        /** @var Application $application */
+        $application = require __DIR__ . '/../../app/elmigrator.php';
+        $application->setAutoExit(false);
+        $application->setCatchExceptions(false);
+        $application->addCommands([new class ('custom') extends AbstractCommand {
+            protected function execute(InputInterface $input, OutputInterface $output): int
+            {
+                $this->bootstrap($input, $output);
+                $output->writeln('Migration table: ' . $this->getMigrationTable());
+
+                return self::SUCCESS;
+            }
+        }]);
+        $tester = new ApplicationTester($application);
+
+        // When
+        $tester->run(['command' => 'custom']);
+
+        // Then
+        $this->assertCommandSucceeded($tester);
+        $this->assertStringContainsString('Migration table: ' . self::MIGRATION_TABLE, $tester->getDisplay());
+        $this->assertSame(1, $GLOBALS['elmigrator_config_loads']);
+        unset($GLOBALS['elmigrator_config_loads']);
     }
 
     public function testFailsWithAnExplicitMessageWhenNoConfigFileIsFound(): void

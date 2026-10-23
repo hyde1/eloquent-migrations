@@ -23,8 +23,6 @@ class MigrateInstall extends AbstractCommand
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->bootstrap($input, $output);
-
         if (! $this->confirmToProceed()) {
             return 0;
         }
