@@ -34,7 +34,7 @@ final readonly class Configuration
 
     public function defaultEnvironment(): string
     {
-        return $this->getString('default_environment');
+        return $this->getStrictString('default_environment');
     }
 
     /**
@@ -42,7 +42,7 @@ final readonly class Configuration
      */
     public function connectionName(): ?string
     {
-        return $this->get('database') === null ? null : $this->getString('database');
+        return $this->get('database') === null ? null : $this->getStrictString('database');
     }
 
     public function databaseManager(): DatabaseManager
@@ -76,6 +76,20 @@ final readonly class Configuration
         }
 
         return (string) $value;
+    }
+
+    /**
+     * For the values stored in string properties before: other types are not converted, e.g. false must not become an
+     * empty environment, which would skip the production confirmation.
+     */
+    private function getStrictString(string $key): string
+    {
+        $value = $this->getRequired($key);
+        if (!is_string($value)) {
+            throw $this->invalidValue($key, 'a string');
+        }
+
+        return $value;
     }
 
     private function getRequired(string ...$keys): mixed

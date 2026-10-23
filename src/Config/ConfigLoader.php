@@ -26,7 +26,8 @@ final class ConfigLoader
                 continue;
             }
 
-            $values = require $file;
+            // In its own scope: the variables of the config file must not overwrite the ones of this method
+            $values = (static fn (string $configFile): mixed => require $configFile)($file);
             if (!is_array($values)) {
                 throw new \RuntimeException(sprintf('The configuration file "%s" must return an array', $file));
             }

@@ -114,7 +114,8 @@ abstract class AbstractCommand extends Command
      */
     private function configuration(): Configuration
     {
-        return new Configuration($this->config, $this->loadedConfigFile ?? $this->configFile);
+        // Commands overriding loadConfig() may set $config without file
+        return new Configuration($this->config, $this->loadedConfigFile ?? $this->configFile ?? '(none)');
     }
 
     /**

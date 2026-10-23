@@ -79,6 +79,31 @@ final class ConfigurationTest extends TestCase
         new Configuration($this->makeValues(['db' => new Manager()]), self::FILE)->databaseManager();
     }
 
+    /**
+     * These values used to be stored in string properties, so a value of another type was rejected. Checks it still
+     * is, e.g. false must not become an empty environment, which would skip the production confirmation.
+     *
+     * @param \Closure(Configuration): mixed $read
+     */
+    #[DataProvider('strictStringValuesProvider')]
+    public function testRejectsAValueThatIsNotAString(string $key, mixed $value, \Closure $read): void
+    {
+        // Then
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage(sprintf('The "%s" value of the configuration file "%s" must be a string', $key, self::FILE));
+
+        // When
+        $read(new Configuration($this->makeValues([$key => $value]), self::FILE));
+    }
+
+    /**
+     * The paths and the migration table used to be cast to string.
+     */
+    public function testConvertsTheScalarPathsAndMigrationTableToString(): void
+    {
+        $this->assertSame('1', new Configuration($this->makeValues(['migration_table' => 1]), self::FILE)->migrationTable());
+    }
+
     public function testRejectsAPathThatIsNotAString(): void
     {
         // Then
@@ -115,6 +140,16 @@ final class ConfigurationTest extends TestCase
     // -------------------
     // 🧪 Data Providers
     // -------------------
+
+    /** @return array<string, array{string, mixed, \Closure(Configuration): mixed}> */
+    public static function strictStringValuesProvider(): array
+    {
+        return [
+            'false default environment' => ['default_environment', false, fn (Configuration $configuration): string => $configuration->defaultEnvironment()],
+            'integer connection name' => ['database', 0, fn (Configuration $configuration): ?string => $configuration->connectionName()],
+            'false connection name' => ['database', false, fn (Configuration $configuration): ?string => $configuration->connectionName()],
+        ];
+    }
 
     /** @return array<string, array{string, \Closure(Configuration): mixed}> */
     public static function requiredValuesProvider(): array
