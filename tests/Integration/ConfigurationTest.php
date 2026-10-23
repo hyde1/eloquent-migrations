@@ -229,6 +229,23 @@ final class ConfigurationTest extends IntegrationTestCase
         $this->runCommand('status');
     }
 
+    /**
+     * Checks a value missing from the config file is reported with the file and the key, instead of a PHP warning.
+     */
+    public function testFailsWithAnExplicitMessageWhenAValueIsMissing(): void
+    {
+        // Given
+        $configFile = $this->workingDirectory . '/elmigrator.php';
+        file_put_contents($configFile, str_replace("'migration_table' =>", "'unused' =>", (string) file_get_contents($configFile)));
+
+        // Then
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('elmigrator.php" must define "migration_table"');
+
+        // When
+        $this->runCommand('status');
+    }
+
     public function testFailsWhenTheConfigFileDoesNotReturnAnArray(): void
     {
         // Given
