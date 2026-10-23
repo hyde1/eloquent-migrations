@@ -6,6 +6,7 @@ namespace Hyde1\EloquentMigrations\Tests\Unit\Seeds;
 
 use Hyde1\EloquentMigrations\Seeds\Seeder;
 use Hyde1\EloquentMigrations\Seeds\SeederLoader;
+use Hyde1\EloquentMigrations\Seeds\SeederSorter;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -27,6 +28,24 @@ final class SeederLoaderTest extends TestCase
             array_keys($seeders),
         );
         $this->assertSame(array_keys($seeders), array_values(array_map(fn (Seeder $seeder): string => $seeder::class, $seeders)));
+    }
+
+    /**
+     * PHP class names are case-insensitive: a file may declare the namespace with another case. Dependencies are given
+     * with ::class, which uses the declared case. Checks the seeders are indexed by their declared class name, so that
+     * they are ordered after their dependencies.
+     */
+    public function testIndexesTheSeedersByTheirDeclaredClassName(): void
+    {
+        // When
+        $seeders = new SeederLoader()->load(self::fixturePath('namespace_casing'));
+
+        // Then
+        $this->assertSame(['Database\seeders\CasingASeeder', 'Database\seeders\CasingZSeeder'], array_keys($seeders));
+        $this->assertSame(
+            ['Database\seeders\CasingZSeeder', 'Database\seeders\CasingASeeder'],
+            array_keys(new SeederSorter()->sort($seeders)),
+        );
     }
 
     public function testReturnsNoSeederForAMissingDirectory(): void

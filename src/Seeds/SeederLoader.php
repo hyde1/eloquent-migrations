@@ -12,7 +12,7 @@ final class SeederLoader
     public const string NAMESPACE = 'Database\\Seeders\\';
 
     /**
-     * @return array<string, Seeder> Seeders indexed by class name, in alphabetical order
+     * @return array<string, Seeder> Seeders indexed by class name, in the alphabetical order of their files
      */
     public function load(string $directory): array
     {
@@ -43,6 +43,13 @@ final class SeederLoader
 
         ksort($seeders);
 
-        return $seeders;
+        // Indexed by their declared class name, as their dependencies (::class): PHP class names are case-insensitive,
+        // a file may declare the namespace with another case
+        $seedersByClassName = [];
+        foreach ($seeders as $seeder) {
+            $seedersByClassName[$seeder::class] = $seeder;
+        }
+
+        return $seedersByClassName;
     }
 }
