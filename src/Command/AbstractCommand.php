@@ -52,9 +52,11 @@ abstract class AbstractCommand extends Command
      */
     private function requireConfig(): array
     {
-        $configFiles = [getcwd() . DIRECTORY_SEPARATOR . $this->configFile];
-        if (isset($_ENV['ELMIGRATOR_CONFIG'])) {
-            $configFiles[] = getcwd() . DIRECTORY_SEPARATOR . $_ENV['ELMIGRATOR_CONFIG'];
+        $configFiles = [$this->resolvePath($this->configFile)];
+        // $_ENV is set by custom binaries (see README), getenv() reads the variables exported in the shell
+        $environmentConfigFile = $_ENV['ELMIGRATOR_CONFIG'] ?? getenv('ELMIGRATOR_CONFIG');
+        if (is_string($environmentConfigFile) && $environmentConfigFile !== '') {
+            $configFiles[] = $this->resolvePath($environmentConfigFile);
         }
 
         foreach ($configFiles as $configFile) {
@@ -74,6 +76,16 @@ abstract class AbstractCommand extends Command
             'Could not find the configuration file "%s". Set it with the --config option or the ELMIGRATOR_CONFIG environment variable.',
             $this->configFile,
         ));
+    }
+
+    /**
+     * Relative paths are resolved from the current working directory.
+     */
+    private function resolvePath(string $path): string
+    {
+        $isAbsolute = str_starts_with($path, '/') || str_starts_with($path, '\\') || preg_match('~^[a-zA-Z]:[/\\\\]~', $path) === 1;
+
+        return $isAbsolute ? $path : getcwd() . DIRECTORY_SEPARATOR . $path;
     }
 
     protected function getMigrationPath(): string

@@ -15,6 +15,7 @@ final class ConfigurationTest extends IntegrationTestCase
     protected function tearDown(): void
     {
         unset($_ENV['ELMIGRATOR_CONFIG']);
+        putenv('ELMIGRATOR_CONFIG');
 
         parent::tearDown();
     }
@@ -72,6 +73,61 @@ final class ConfigurationTest extends IntegrationTestCase
         // Then
         $this->assertCommandSucceeded($tester);
         $this->assertTableExists('env_migrations');
+    }
+
+    /**
+     * With the default variables_order (GPCS), $_ENV is empty: a variable exported in the shell, as the README
+     * documents, is only available through getenv().
+     */
+    public function testUsesTheConfigFileFromAnExportedEnvironmentVariable(): void
+    {
+        // Given
+        mkdir($this->workingDirectory . '/config');
+        $this->writeConfig('config/elmigrator.php', ['migration_table' => 'env_migrations']);
+        unlink($this->workingDirectory . '/elmigrator.php');
+        putenv('ELMIGRATOR_CONFIG=config/elmigrator.php');
+
+        // When
+        $tester = $this->runCommand('migrate:install');
+
+        // Then
+        $this->assertCommandSucceeded($tester);
+        $this->assertTableExists('env_migrations');
+    }
+
+    public function testConfigOptionAcceptsAnAbsolutePath(): void
+    {
+        // Given
+        mkdir($this->workingDirectory . '/config');
+        $this->writeConfig('config/elmigrator.php', ['migration_table' => 'other_migrations']);
+        unlink($this->workingDirectory . '/elmigrator.php');
+
+        // When
+        $tester = $this->runCommand('migrate:install', ['--config' => $this->workingDirectory . '/config/elmigrator.php']);
+
+        // Then
+        $this->assertCommandSucceeded($tester);
+        $this->assertTableExists('other_migrations');
+    }
+
+    /**
+     * Commands calling sub-commands forward the config file as given, the absolute path must work for them too.
+     */
+    public function testEnvironmentVariableAcceptsAnAbsolutePath(): void
+    {
+        // Given
+        mkdir($this->workingDirectory . '/config');
+        $this->writeConfig('config/elmigrator.php', ['migration_table' => 'env_migrations']);
+        unlink($this->workingDirectory . '/elmigrator.php');
+        putenv('ELMIGRATOR_CONFIG=' . $this->workingDirectory . '/config/elmigrator.php');
+        $this->useMigrations('schema');
+
+        // When
+        $tester = $this->runCommand('migrate');
+
+        // Then
+        $this->assertCommandSucceeded($tester);
+        $this->assertSame(4, $this->db()->table('env_migrations')->count());
     }
 
     public function testMigrationsPathIsReadFromTheConfiguration(): void
