@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Hyde1\EloquentMigrations\Command;
 
 use Closure;
+use Hyde1\EloquentMigrations\Config\ConfigLoader;
+use Hyde1\EloquentMigrations\Config\Configuration;
 use Hyde1\EloquentMigrations\Migrations\Migrator;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\Migrations\DatabaseMigrationRepository;
@@ -27,6 +29,7 @@ abstract class AbstractCommand extends Command
     protected OutputInterface $output;
     protected string $environment;
     protected ?string $database;
+    private string $loadedConfigFile;
     private bool $bootstrapped = false;
 
     protected function configure(): void
@@ -66,67 +69,26 @@ abstract class AbstractCommand extends Command
     protected function loadConfig(InputInterface $input): void
     {
         $this->configFile = (string) $input->getOption('config');
-        $this->config = $this->requireConfig();
-        $this->environment = $input->getOption('env') ?? $this->config['default_environment'];
-        $this->database = $input->getOption('database') ?? $this->config['database'] ?? null;
-    }
-
-    /**
-     * Load the configuration file given with --config, or else the one from the ELMIGRATOR_CONFIG environment variable.
-     *
-     * @return array<string, mixed>
-     */
-    private function requireConfig(): array
-    {
-        $configFiles = [$this->resolvePath($this->configFile)];
-        // $_ENV is set by custom binaries (see README), getenv() reads the variables exported in the shell
-        $environmentConfigFile = $_ENV['ELMIGRATOR_CONFIG'] ?? getenv('ELMIGRATOR_CONFIG');
-        if (is_string($environmentConfigFile) && $environmentConfigFile !== '') {
-            $configFiles[] = $this->resolvePath($environmentConfigFile);
-        }
-
-        foreach ($configFiles as $configFile) {
-            if (!file_exists($configFile)) {
-                continue;
-            }
-
-            $config = require $configFile;
-            if (!is_array($config)) {
-                throw new \RuntimeException(sprintf('The configuration file "%s" must return an array', $configFile));
-            }
-
-            return $config;
-        }
-
-        throw new \RuntimeException(sprintf(
-            'Could not find the configuration file "%s". Set it with the --config option or the ELMIGRATOR_CONFIG environment variable.',
-            $this->configFile,
-        ));
-    }
-
-    /**
-     * Relative paths are resolved from the current working directory.
-     */
-    private function resolvePath(string $path): string
-    {
-        $isAbsolute = str_starts_with($path, '/') || str_starts_with($path, '\\') || preg_match('~^[a-zA-Z]:[/\\\\]~', $path) === 1;
-
-        return $isAbsolute ? $path : getcwd() . DIRECTORY_SEPARATOR . $path;
+        $configuration = new ConfigLoader()->load($this->configFile);
+        $this->loadedConfigFile = $configuration->file();
+        $this->config = $configuration->toArray();
+        $this->environment = $input->getOption('env') ?? $configuration->defaultEnvironment();
+        $this->database = $input->getOption('database') ?? $configuration->connectionName();
     }
 
     protected function getMigrationPath(): string
     {
-        return (string) $this->config['paths']['migrations'];
+        return $this->configuration()->migrationsPath();
     }
 
     protected function getSeedPath(): string
     {
-        return (string) $this->config['paths']['seeds'];
+        return $this->configuration()->seedsPath();
     }
 
     protected function getDb(): DatabaseManager
     {
-        return $this->config['db'];
+        return $this->configuration()->databaseManager();
     }
 
     protected function environment(): string
@@ -144,7 +106,16 @@ abstract class AbstractCommand extends Command
 
     protected function getMigrationTable(): string
     {
-        return (string) $this->config['migration_table'];
+        return $this->configuration()->migrationTable();
+    }
+
+    /**
+     * Built from $config, which commands extending this class may have changed after loading it.
+     */
+    private function configuration(): Configuration
+    {
+        // Commands overriding loadConfig() may set $config without file
+        return new Configuration($this->config, $this->loadedConfigFile ?? $this->configFile ?? '(none)');
     }
 
     /**

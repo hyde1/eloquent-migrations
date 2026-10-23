@@ -229,6 +229,74 @@ final class ConfigurationTest extends IntegrationTestCase
         $this->runCommand('status');
     }
 
+    /**
+     * Checks a value missing from the config file is reported with the file and the key, instead of a PHP warning.
+     */
+    /**
+     * Commands extending AbstractCommand may override loadConfig() to set $config without a config file.
+     * Checks the configuration getters still work for them.
+     */
+    public function testCommandsSettingTheConfigurationThemselvesCanReadIt(): void
+    {
+        // Given
+        /** @var Application $application */
+        $application = require __DIR__ . '/../../app/elmigrator.php';
+        $application->setAutoExit(false);
+        $application->setCatchExceptions(false);
+        $application->addCommands([new class ('custom') extends AbstractCommand {
+            protected function loadConfig(InputInterface $input): void
+            {
+                $this->config = ['migration_table' => 'in_memory_migrations'];
+            }
+
+            protected function execute(InputInterface $input, OutputInterface $output): int
+            {
+                $output->writeln('Migration table: ' . $this->getMigrationTable());
+
+                return self::SUCCESS;
+            }
+        }]);
+        $tester = new ApplicationTester($application);
+
+        // When
+        $tester->run(['command' => 'custom']);
+
+        // Then
+        $this->assertCommandSucceeded($tester);
+        $this->assertStringContainsString('Migration table: in_memory_migrations', $tester->getDisplay());
+    }
+
+    /**
+     * The config file is a PHP script: its variables must not interfere with the loading.
+     */
+    public function testConfigFileVariablesDoNotInterfereWithTheLoading(): void
+    {
+        // Given
+        $configFile = $this->workingDirectory . '/elmigrator.php';
+        file_put_contents($configFile, str_replace('<?php', "<?php\n\$file = null;\n\$values = null;", (string) file_get_contents($configFile)));
+
+        // When
+        $tester = $this->runCommand('migrate:install');
+
+        // Then
+        $this->assertCommandSucceeded($tester);
+        $this->assertTableExists(self::MIGRATION_TABLE);
+    }
+
+    public function testFailsWithAnExplicitMessageWhenAValueIsMissing(): void
+    {
+        // Given
+        $configFile = $this->workingDirectory . '/elmigrator.php';
+        file_put_contents($configFile, str_replace("'migration_table' =>", "'unused' =>", (string) file_get_contents($configFile)));
+
+        // Then
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('elmigrator.php" must define "migration_table"');
+
+        // When
+        $this->runCommand('status');
+    }
+
     public function testFailsWhenTheConfigFileDoesNotReturnAnArray(): void
     {
         // Given
