@@ -24,7 +24,6 @@ class CreateDatabase extends AbstractCommand
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->bootstrap($input, $output);
         $dbName = trim($input->getArgument('name'));
         if (!preg_match('/^[a-zA-Z0-9_-]+$/', $dbName)) {
             $output->writeln('<error>Invalid database name</error>');

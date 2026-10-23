@@ -35,8 +35,6 @@ class CreateMigration extends AbstractCommand
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->bootstrap($input, $output);
-
         $name = Str::snake(trim($this->input->getArgument('name')));
         $table = $this->input->getOption('table');
         $create = $this->input->getOption('create') ?: false;

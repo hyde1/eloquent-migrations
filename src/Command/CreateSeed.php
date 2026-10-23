@@ -28,7 +28,6 @@ class CreateSeed extends AbstractCommand
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->bootstrap($input, $output);
         $className = $this->getClassName();
         $path = $this->getSeederPath($className);
 
