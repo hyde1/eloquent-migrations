@@ -22,5 +22,6 @@ $declared = array_diff(get_declared_classes(), $declaredBefore);
 
 echo json_encode([
     'returns_migration' => $returned instanceof Migration,
+    'within_transaction' => $returned instanceof Migration ? $returned->withinTransaction : null,
     'declared_seeders' => array_values(array_filter($declared, fn (string $class): bool => is_subclass_of($class, Seeder::class))),
 ], JSON_THROW_ON_ERROR);

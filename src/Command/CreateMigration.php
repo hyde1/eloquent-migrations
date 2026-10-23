@@ -43,7 +43,7 @@ class CreateMigration extends AbstractCommand
             $create = true;
         }
         if (! $table) {
-            [$table, $create] = TableGuesser::guess($name);
+            [$table, $create] = TableGuesser::guess($name) ?? [null, false];
         }
 
         $this->writeMigration($name, $table, $create);
@@ -54,12 +54,11 @@ class CreateMigration extends AbstractCommand
     /**
      * Write the migration file to disk.
      *
-     * @param string $name
-     * @param string $table
-     * @param bool $create
+     * Without table, the migration is generated from the blank stub.
+     *
      * @throws \Exception
      */
-    protected function writeMigration(string $name, string $table, bool $create)
+    protected function writeMigration(string $name, ?string $table, bool $create): void
     {
         $file = $this->creator->create(
             $name,

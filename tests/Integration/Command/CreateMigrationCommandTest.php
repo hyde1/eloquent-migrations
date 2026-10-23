@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Hyde1\EloquentMigrations\Tests\Integration\Command;
 
 use Hyde1\EloquentMigrations\Tests\Support\IntegrationTestCase;
+use Illuminate\Database\Schema\Blueprint;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 
 /**
  * The create command relies on the Eloquent MigrationCreator and on the stubs shipped in data/stubs.
@@ -57,18 +57,24 @@ final class CreateMigrationCommandTest extends IntegrationTestCase
     }
 
     /**
-     * End-to-end check of the update stub: generated, applied then rolled back without editing them.
+     * End-to-end check of the stubs: generated, applied then rolled back without editing them.
      * Checks the migration is recorded then removed from the repository.
      *
      * @param array<string, string> $options
      */
-    #[DataProvider('runnableMigrationsProvider')]
+    #[DataProvider('stubsProvider')]
     public function testGeneratedMigrationCanBeMigratedAndRolledBack(string $name, array $options): void
     {
         // Given
-        $this->useMigrations('seed_runs');
         $this->runCommand('create', ['name' => $name] + $options);
-        $migration = basename($this->generatedMigration(), '.php');
+        $file = $this->generatedMigration();
+        $migration = basename($file, '.php');
+        if (str_contains((string) file_get_contents($file), "\$this->schema()->table('orders'")) {
+            // The update stubs alter an existing table
+            $this->schema()->create('orders', function (Blueprint $table): void {
+                $table->increments('id');
+            });
+        }
 
         // When
         $this->runCommand('migrate');
@@ -81,64 +87,27 @@ final class CreateMigrationCommandTest extends IntegrationTestCase
     }
 
     /**
-     * Documents a known bug: the create stub calls $table->primaryKey('id'), which is not a Blueprint method.
-     * Checks migrating a freshly generated "create" migration fails.
-     * Expected behavior: the generated migration creates the table ($table->primary('id')).
+     * The stubs show how to run a migration outside of a transaction (e.g. CREATE INDEX CONCURRENTLY), by uncommenting
+     * a line. The Eloquent parent property is untyped, so the hint must not add a type, which would be a fatal error.
+     * Checks each generated migration still loads once the line is uncommented, and opts out of the transaction.
+     *
+     * @param array<string, string> $options
      */
-    #[Group('documented-bug')]
-    public function testGeneratedCreateMigrationCannotBeMigrated(): void
+    #[DataProvider('stubsProvider')]
+    public function testGeneratedMigrationCanOptOutOfTheTransaction(string $name, array $options): void
     {
         // Given
-        $this->runCommand('create', ['name' => 'create_orders_table']);
-
-        // Then
-        $this->expectException(\BadMethodCallException::class);
-        $this->expectExceptionMessage('primaryKey');
-
-        // When
-        $this->runCommand('migrate');
-    }
-
-    /**
-     * Documents a known bug: the stubs suggest uncommenting "public bool $withinTransaction = false;", but the
-     * Eloquent parent property is untyped, so redeclaring it with a type is a fatal error.
-     * Checks the generated migration cannot be loaded once the line is uncommented.
-     * Expected behavior: the hint is "public $withinTransaction = false;", which loads fine.
-     */
-    #[Group('documented-bug')]
-    public function testUncommentingTheWithinTransactionHintBreaksTheMigration(): void
-    {
-        // Given
-        $this->runCommand('create', ['name' => 'add_status_to_orders_table']);
+        $this->runCommand('create', ['name' => $name] + $options);
         $file = $this->generatedMigration();
-        file_put_contents($file, str_replace('//public bool $withinTransaction', 'public bool $withinTransaction', (string) file_get_contents($file)));
+        file_put_contents($file, str_replace('//public $withinTransaction', 'public $withinTransaction', (string) file_get_contents($file), $replacements));
+        $this->assertSame(1, $replacements, 'The stub should contain the commented withinTransaction hint');
 
         // When
         $inspection = $this->inspectPhpFile($file);
 
         // Then
-        $this->assertNotSame(0, $inspection['exitCode']);
-        // The message differs between PHP versions
-        $this->assertMatchesRegularExpression('/Type of .*::\$withinTransaction must (not be defined|be omitted)/', $inspection['output']);
-    }
-
-    /**
-     * Documents a known bug: when no table is given nor guessed from the name, Eloquent returns a null table which
-     * is passed to a string parameter. Checks generating a blank migration fails with a TypeError.
-     * Expected behavior: a migration is generated from the blank stub (data/stubs/migration.stub).
-     */
-    #[Group('documented-bug')]
-    public function testCannotGenerateABlankMigration(): void
-    {
-        // Then
-        $this->expectException(\TypeError::class);
-
-        // When
-        try {
-            $this->runCommand('create', ['name' => 'backfill_data']);
-        } finally {
-            $this->assertSame([], glob($this->migrationsDirectory() . '/*.php'));
-        }
+        $this->assertSame(0, $inspection['exitCode'], $inspection['output']);
+        $this->assertFalse($inspection['within_transaction'] ?? null);
     }
 
     // -------------------
@@ -148,7 +117,6 @@ final class CreateMigrationCommandTest extends IntegrationTestCase
     private function generatedMigration(): string
     {
         $files = glob($this->migrationsDirectory() . '/*.php') ?: [];
-        $files = array_values(array_filter($files, fn (string $file): bool => !str_ends_with($file, '_create_seed_runs_table.php')));
         $this->assertCount(1, $files, 'Exactly one migration should have been generated');
 
         return $files[0];
@@ -166,6 +134,7 @@ final class CreateMigrationCommandTest extends IntegrationTestCase
             'create option' => ['build_orders', ['--create' => 'orders'], 'build_orders.php', "\$this->schema()->create('orders'"],
             'update guessed from the name' => ['add_status_to_orders_table', [], 'add_status_to_orders_table.php', "\$this->schema()->table('orders'"],
             'table option' => ['change_orders', ['--table' => 'orders'], 'change_orders.php', "\$this->schema()->table('orders'"],
+            'blank migration' => ['backfill_data', [], 'backfill_data.php', "public function up(): void\n    {\n        //\n    }"],
         ];
     }
 
@@ -173,14 +142,5 @@ final class CreateMigrationCommandTest extends IntegrationTestCase
     public static function stubsProvider(): array
     {
         return array_map(fn (array $migration): array => [$migration[0], $migration[1]], self::migrationsProvider());
-    }
-
-    /** @return array<string, array{string, array<string, string>}> */
-    public static function runnableMigrationsProvider(): array
-    {
-        return [
-            'update guessed from the name' => ['add_status_to_seed_runs_table', []],
-            'table option' => ['change_seed_runs', ['--table' => 'seed_runs']],
-        ];
     }
 }
