@@ -46,7 +46,7 @@ class Status extends AbstractCommand
             $output->writeln('<error>No migrations found</error>');
         }
 
-        return 0;
+        return self::SUCCESS;
     }
 
     /**

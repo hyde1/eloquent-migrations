@@ -27,7 +27,7 @@ class Init extends Command
         $this->createConfig($path, $output);
         $this->createBin($output);
 
-        return 0;
+        return self::SUCCESS;
     }
 
     protected function createPath(InputInterface $input, OutputInterface $output): string
