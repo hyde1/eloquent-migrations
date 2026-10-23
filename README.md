@@ -98,10 +98,10 @@ the project, `composer.json`, `composer.lock` and `vendor/` are left untouched:
 
 ```bash
 scripts/test-illuminate.sh ^13.0
-DB_CONNECTION=pgsql scripts/test-illuminate.sh dev-master --testsuite=integration
+DB_CONNECTION=pgsql scripts/test-illuminate.sh 13.x-dev --testsuite=integration
 ```
 
 The GitHub Actions `Tests` workflow runs the suite on the supported range (lowest and highest dependencies) and on
-upcoming Illuminate versions (informational on pull requests, every Monday and on demand with a custom version).
+upcoming Illuminate versions (every Monday on the `13.x-dev` branch, and on demand with a custom version such as `14.x-dev`).
 On upcoming versions PHPStan is run as well, to report the Illuminate APIs used by the library or by the test
 fixtures (written like project migrations and seeders) that were removed or changed.

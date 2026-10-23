@@ -5,7 +5,7 @@
 #
 # Usage: scripts/test-illuminate.sh <illuminate version constraint> [phpunit arguments...]
 #   scripts/test-illuminate.sh ^13.0
-#   scripts/test-illuminate.sh dev-master --testsuite=integration
+#   scripts/test-illuminate.sh 13.x-dev --testsuite=integration
 #   DB_CONNECTION=pgsql scripts/test-illuminate.sh 13.x-dev
 #
 set -euo pipefail
