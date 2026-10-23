@@ -7,33 +7,27 @@ use Hyde1\EloquentMigrations\Seeds\Seeder;
 class DummySeeder extends Seeder
 {
     /**
-     * Return array of Seeds that needs to be run before
-     *
-     * @return array
-     */
-    /* Uncomment to add dependencies
-    public function getDependencies()
-    {
-       return [
-           'MySeeder',
-           'UserSeeder'
-       ];
-    }
-    */
-    /**
-     * Enables, if supported, wrapping the migration within a transaction.
+     * Enables, if supported, wrapping the seeder within a transaction.
      * Uncomment to prevent transaction
-     *
-     * @var bool
      */
     //public bool $withinTransaction = false;
 
     /**
-     * Run the database seeds.
-     *
-     * @return void
+     * Return the seeders that need to be run before this one
      */
-    public function run()
+    /* Uncomment to add dependencies
+    public function getDependencies(): array
+    {
+        return [
+            UserSeeder::class,
+        ];
+    }
+    */
+
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
     {
         // Insert your seed data here
     }

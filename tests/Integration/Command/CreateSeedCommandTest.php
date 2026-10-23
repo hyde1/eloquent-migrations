@@ -6,7 +6,6 @@ namespace Hyde1\EloquentMigrations\Tests\Integration\Command;
 
 use Hyde1\EloquentMigrations\Tests\Support\IntegrationTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 
 final class CreateSeedCommandTest extends IntegrationTestCase
 {
@@ -57,23 +56,49 @@ final class CreateSeedCommandTest extends IntegrationTestCase
     }
 
     /**
-     * Documents a known bug: the seeder template declares run() without the void return type required by the
-     * abstract Seeder::run(), so the generated class triggers a fatal error as soon as it is loaded.
-     * Checks loading the generated seeder fails with an incompatible declaration error.
-     * Expected behavior: the generated seeder can be loaded and run by seed:run.
+     * End-to-end check of the seeder template: generated then run by seed:run without being edited.
+     * Checks the generated seeder is loaded and run.
      */
-    #[Group('documented-bug')]
-    public function testGeneratedSeederCannotBeLoaded(): void
+    public function testGeneratedSeederCanBeRun(): void
+    {
+        // Given
+        // Seeders are loaded in the test process: the class name must be unique
+        $className = 'GeneratedSeeder' . bin2hex(random_bytes(4));
+        $this->runCommand('seed:create', ['name' => $className]);
+
+        // When
+        $tester = $this->runCommand('seed:run');
+
+        // Then
+        $this->assertCommandSucceeded($tester);
+        $this->assertStringContainsString('Database\\Seeders\\' . $className . ' seeded', $tester->getDisplay());
+    }
+
+    /**
+     * The template shows how to declare dependencies and to opt out of the transaction, by uncommenting code.
+     * Checks the generated seeder still loads once uncommented, with the expected values.
+     */
+    public function testGeneratedSeederHintsAreValid(): void
     {
         // Given
         $this->runCommand('seed:create', ['name' => 'CustomerSeeder']);
+        $file = $this->seedsDirectory() . '/CustomerSeeder.php';
+        $code = str_replace('//public bool', 'public bool', (string) file_get_contents($file));
+        $code = (string) preg_replace('#/\* Uncomment to add dependencies\n(.*?)\n\s*\*/#s', '$1', $code);
+        file_put_contents($file, $code);
 
         // When
-        $inspection = $this->inspectPhpFile($this->seedsDirectory() . '/CustomerSeeder.php');
+        $inspection = $this->inspectPhpFile($file);
 
         // Then
-        $this->assertNotSame(0, $inspection['exitCode']);
-        $this->assertStringContainsString('must be compatible with Hyde1\EloquentMigrations\Seeds\Seeder::run(): void', $inspection['output']);
+        $this->assertSame(0, $inspection['exitCode'], $inspection['output']);
+        $this->assertSame(['Database\\Seeders\\CustomerSeeder'], $inspection['declared_seeders'] ?? null);
+        $this->assertSame([
+            'Database\\Seeders\\CustomerSeeder' => [
+                'dependencies' => ['Database\\Seeders\\UserSeeder'],
+                'within_transaction' => false,
+            ],
+        ], $inspection['seeders'] ?? null);
     }
 
     // -------------------
