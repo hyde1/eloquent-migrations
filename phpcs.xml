@@ -21,15 +21,8 @@
         <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.BraceOnSameLine"/>
         <exclude name="Squiz.WhiteSpace.ScopeClosingBrace.ContentBefore"/>
     </rule>
-    <!-- TODO: src/ is excluded from the type hints rules until its existing errors are fixed -->
-    <rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint">
-        <exclude-pattern>src/*</exclude-pattern>
-    </rule>
-    <rule ref="SlevomatCodingStandard.TypeHints.PropertyTypeHint">
-        <exclude-pattern>src/*</exclude-pattern>
-    </rule>
-    <rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHint">
-        <exclude-pattern>src/*</exclude-pattern>
-    </rule>
+    <rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint"/>
+    <rule ref="SlevomatCodingStandard.TypeHints.PropertyTypeHint"/>
+    <rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHint"/>
     <rule ref="SlevomatCodingStandard.TypeHints.UselessConstantTypeHint"/>
 </ruleset>

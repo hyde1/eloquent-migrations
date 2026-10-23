@@ -17,7 +17,7 @@ class CreateMigration extends AbstractCommand
 {
     protected MigrationCreator $creator;
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Create a new migration')
@@ -43,10 +43,11 @@ class CreateMigration extends AbstractCommand
             $create = true;
         }
         if (! $table) {
-            [$table, $create] = TableGuesser::guess($name) ?? [null, false];
+            [$table, $create] = TableGuesser::guess($name);
         }
 
-        $this->writeMigration($name, $table, $create);
+        // Without table, the guesser returns null
+        $this->writeMigration($name, $table, (bool) $create);
 
         return 0;
     }

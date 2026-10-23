@@ -13,7 +13,7 @@ class CreateSeed extends AbstractCommand
 {
     protected DatabaseMigrationRepository $repository;
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Create a new seeder class')

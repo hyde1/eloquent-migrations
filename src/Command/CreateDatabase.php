@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand('create:database')]
 class CreateDatabase extends AbstractCommand
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Create a database')

@@ -7,12 +7,13 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
+use InvalidArgumentException;
 use RuntimeException;
 
 #[AsCommand('init')]
 class Init extends Command
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Initialize the project')
@@ -55,7 +56,7 @@ class Init extends Command
         return $path;
     }
 
-    protected function createConfig(string $path, OutputInterface $output)
+    protected function createConfig(string $path, OutputInterface $output): void
     {
         $configfile = 'elmigrator.php';
         $contents = file_get_Contents(__DIR__ . '/../../data/' . $configfile . '.dist');
@@ -76,7 +77,7 @@ class Init extends Command
         $output->writeln("<info>created</info> $outputPath");
     }
 
-    public function createBin(OutputInterface $output)
+    public function createBin(OutputInterface $output): void
     {
         $pathBinFile = __DIR__ . '/../../bin/elmigrator';
 

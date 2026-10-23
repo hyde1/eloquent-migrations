@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand('migrate:install')]
 class MigrateInstall extends AbstractCommand
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Create the migration repository')
@@ -30,7 +30,7 @@ class MigrateInstall extends AbstractCommand
         }
 
         $repository = new DatabaseMigrationRepository($this->getDb(), $this->getMigrationTable());
-        $repository->setSource($this->database);
+        $repository->setSource($this->getConnectionName());
         $repository->createRepository();
 
         $this->output->writeln('<info>Migration table created successfully.</info>');

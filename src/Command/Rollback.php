@@ -7,27 +7,18 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Hyde1\EloquentMigrations\Migrations\Migrator;
+use Illuminate\Console\OutputStyle;
 use Illuminate\Database\Migrations\DatabaseMigrationRepository;
+use Illuminate\Database\Migrations\Migrator as BaseMigrator;
 use Illuminate\Filesystem\Filesystem;
 
 #[AsCommand('rollback')]
 class Rollback extends AbstractCommand
 {
-    /**
-     * The migration creator instance.
-     *
-     * @var \Illuminate\Database\Migrations\Migrator
-     */
-    protected $migrator;
+    protected BaseMigrator $migrator;
+    protected DatabaseMigrationRepository $repository;
 
-    /**
-     * The migration repository
-     *
-     * @var DatabaseMigrationRepository
-     */
-    protected $repository;
-
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Rollback migrations')
@@ -46,9 +37,9 @@ class Rollback extends AbstractCommand
         $this->migrator = new Migrator($this->repository, $this->getDb(), new Filesystem());
         $this->migrator->setOutput($output);
 
-        $this->migrator->usingConnection($this->database, function () use ($output, $input) {
+        $this->migrator->usingConnection($this->getConnectionName(), function () use ($output, $input): void {
             $this->migrator
-                ->setOutput(new \Illuminate\Console\OutputStyle($input, $output))
+                ->setOutput(new OutputStyle($input, $output))
                 ->rollback(
                     [$this->getMigrationPath()],
                     [

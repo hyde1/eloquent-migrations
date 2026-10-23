@@ -18,7 +18,7 @@ class Migrate extends AbstractCommand
     protected BaseMigrator $migrator;
     protected DatabaseMigrationRepository $repository;
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Run migrations')
@@ -42,7 +42,7 @@ class Migrate extends AbstractCommand
         $this->migrator = new Migrator($this->repository, $this->getDb(), new Filesystem());
         $this->migrator->setOutput($output);
 
-        $this->migrator->usingConnection($this->database, function () use ($output, $input) {
+        $this->migrator->usingConnection($this->getConnectionName(), function () use ($output, $input): void {
             $this->prepareDatabase();
 
             // Next, we will check to see if a path option has been defined. If it has
@@ -60,10 +60,8 @@ class Migrate extends AbstractCommand
 
     /**
      * Prepare the migration database for running.
-     *
-     * @return void
      */
-    protected function prepareDatabase()
+    protected function prepareDatabase(): void
     {
         if (! $this->migrator->repositoryExists()) {
             // Running the migrations was already confirmed

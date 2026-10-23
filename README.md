@@ -69,7 +69,7 @@ When a bug is fixed, the group is removed and the assertions are updated to the 
 
 ```bash
 composer lint        # all the checks below
-composer phpstan     # PHPStan (level 8), errors existing before its introduction are in phpstan-baseline.neon
+composer phpstan     # PHPStan (level 8)
 composer cs-check    # PHP-CS-Fixer (composer cs-fix to fix)
 composer phpcs       # PHP_CodeSniffer with Slevomat type hints rules (composer phpcbf to fix)
 ```

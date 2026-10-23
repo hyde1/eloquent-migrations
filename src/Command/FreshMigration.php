@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputOption;
 #[AsCommand('migrate:fresh')]
 class FreshMigration extends AbstractCommand
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Drop all tables and re-run all migrations')
@@ -63,10 +63,8 @@ class FreshMigration extends AbstractCommand
 
     /**
      * Drop all of the database tables.
-     *
-     * @return void
      */
-    protected function dropAllTables()
+    protected function dropAllTables(): void
     {
         $this->getDb()->connection($this->database)
             ->getSchemaBuilder()
@@ -75,10 +73,8 @@ class FreshMigration extends AbstractCommand
 
     /**
      * Drop all database views.
-     *
-     * @return void
      */
-    protected function dropAllViews()
+    protected function dropAllViews(): void
     {
         $this->getDb()->connection($this->database)
                     ->getSchemaBuilder()
@@ -86,10 +82,8 @@ class FreshMigration extends AbstractCommand
     }
     /**
      * Drop all database types.
-     *
-     * @return void
      */
-    protected function dropAllTypes()
+    protected function dropAllTypes(): void
     {
         $this->getDb()->connection($this->database)
                     ->getSchemaBuilder()

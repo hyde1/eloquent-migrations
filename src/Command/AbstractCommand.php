@@ -5,6 +5,7 @@ namespace Hyde1\EloquentMigrations\Command;
 use Closure;
 use Illuminate\Database\DatabaseManager;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -15,13 +16,14 @@ use Symfony\Component\Console\Input\ArrayInput;
 abstract class AbstractCommand extends Command
 {
     protected string $configFile;
+    /** @var array<string, mixed> */
     protected array $config;
     protected InputInterface $input;
     protected OutputInterface $output;
     protected string $environment;
     protected ?string $database;
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->addOption('config', '-c', InputOption::VALUE_REQUIRED, 'The configuration file to load', 'elmigrator.php');
         $this->addOption('env', '-e', InputOption::VALUE_OPTIONAL, 'Choose an environment');
@@ -94,12 +96,24 @@ abstract class AbstractCommand extends Command
         return $this->environment;
     }
 
+    /**
+     * Name of the connection selected with --database (or in the configuration), else the default one.
+     */
+    protected function getConnectionName(): string
+    {
+        return $this->database ?? $this->getDb()->getDefaultConnection();
+    }
+
     protected function getMigrationTable(): string
     {
         return (string) $this->config['migration_table'];
     }
 
-    protected function table(array $headers, array $contents)
+    /**
+     * @param list<string> $headers
+     * @param array<array<mixed>> $contents
+     */
+    protected function table(array $headers, array $contents): void
     {
         $table = new Table($this->output);
         $table->setHeaders($headers)
@@ -110,6 +124,9 @@ abstract class AbstractCommand extends Command
     public function confirm(string $message): bool
     {
         $helper = $this->getHelper('question');
+        if (!$helper instanceof QuestionHelper) {
+            throw new \LogicException('The question helper is not available');
+        }
         $question = new ConfirmationQuestion($message, false);
 
         if (!$helper->ask($this->input, $this->output, $question)) {
@@ -122,12 +139,8 @@ abstract class AbstractCommand extends Command
      * Confirm before proceeding with the action.
      *
      * This method only asks for confirmation in production.
-     *
-     * @param string $warning
-     * @param  Closure|bool|null  $callback
-     * @return bool
      */
-    public function confirmToProceed(string $warning = 'Application In Production!', $callback = null): bool
+    public function confirmToProceed(string $warning = 'Application In Production!', Closure|bool|null $callback = null): bool
     {
         $callback = is_null($callback) ? $this->getDefaultConfirmCallback() : $callback;
         $shouldConfirm = $callback instanceof Closure ? call_user_func($callback) : $callback;
@@ -147,12 +160,10 @@ abstract class AbstractCommand extends Command
 
     /**
      * Get the default confirmation callback.
-     *
-     * @return Closure
      */
     protected function getDefaultConfirmCallback(): Closure
     {
-        return function () {
+        return function (): bool {
             return $this->environment() === 'production';
         };
     }
@@ -160,15 +171,18 @@ abstract class AbstractCommand extends Command
     /**
      * Call another console command.
      *
-     * @param string $command
-     * @param  array   $arguments
-     * @return int
+     * @param array<string, mixed> $arguments
      */
     public function call(string $command, array $arguments = []): int
     {
+        $application = $this->getApplication();
+        if ($application === null) {
+            throw new \LogicException('The command is not registered in an application');
+        }
+
         $arguments['command'] = $command;
         $arguments['--config'] = $this->configFile;
-        return $this->getApplication()->find($command)->run(
+        return $application->find($command)->run(
             new ArrayInput($arguments),
             $this->output,
         );
