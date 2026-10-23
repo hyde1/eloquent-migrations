@@ -49,4 +49,43 @@ final class InitCommandTest extends IntegrationTestCase
         $this->assertCommandSucceeded($tester);
         $this->assertFileEquals(self::CONFIG_TEMPLATE, $this->workingDirectory . '/elmigrator.php');
     }
+
+    /**
+     * The README runs the generated binary directly (migrator migrate).
+     */
+    public function testCreatesAnExecutableBinary(): void
+    {
+        // When
+        $tester = $this->runCommand('init', ['path' => 'database']);
+
+        // Then
+        $this->assertCommandSucceeded($tester);
+        $this->assertTrue(is_executable($this->workingDirectory . '/migrator'), 'The migrator binary should be executable');
+    }
+
+    /**
+     * Checks a read-only directory is reported explicitly instead of failing on a PHP warning when writing the config.
+     */
+    public function testRejectsAnExistingDirectoryThatIsNotWritable(): void
+    {
+        // Given
+        mkdir($this->workingDirectory . '/readonly', 0o555);
+        if (is_writable($this->workingDirectory . '/readonly')) {
+            // e.g. run as root, permissions are not enforced
+            chmod($this->workingDirectory . '/readonly', 0o755);
+            $this->markTestSkipped('The read-only directory is writable by the current user');
+        }
+
+        // Then
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('The directory `readonly` is not writable');
+
+        // When
+        try {
+            $this->runCommand('init', ['path' => 'readonly']);
+        } finally {
+            // Lets tearDown() delete the working directory
+            chmod($this->workingDirectory . '/readonly', 0o755);
+        }
+    }
 }
