@@ -53,7 +53,7 @@ class FreshMigration extends AbstractCommand
         if ($this->input->getOption('seed')) {
             $this->call('seed:run', array_filter([
                 '--database' => $this->database,
-                '--seed' => $this->input->getOption('seeder'),
+                '--seed' => array_filter([$this->input->getOption('seeder')]),
                 '--force' => true,
             ]));
         }

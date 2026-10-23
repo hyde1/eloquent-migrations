@@ -6,7 +6,6 @@ namespace Hyde1\EloquentMigrations\Tests\Integration\Command;
 
 use Hyde1\EloquentMigrations\Tests\Support\IntegrationTestCase;
 use Illuminate\Database\Schema\Blueprint;
-use PHPUnit\Framework\Attributes\Group;
 
 final class FreshMigrationCommandTest extends IntegrationTestCase
 {
@@ -72,24 +71,18 @@ final class FreshMigrationCommandTest extends IntegrationTestCase
         $this->assertSame(['user', 'post', 'comment'], $this->db()->table('seed_runs')->orderBy('id')->pluck('name')->all());
     }
 
-    /**
-     * Documents a known bug: --seeder is forwarded to seed:run as a string while its --seed option expects an array.
-     * Checks a PHP warning is raised and no seeder runs at all.
-     * Expected behavior: only the given seeder runs.
-     */
-    #[Group('documented-bug')]
-    public function testSeederOptionDoesNotRunTheGivenSeeder(): void
+    public function testRunsOnlyTheGivenSeeder(): void
     {
         // Given
         $this->writeConfig(options: ['seeds' => self::seedersFixturePath('dependencies')]);
         $this->useMigrations('seed_runs');
 
         // When
-        $warnings = $this->captureWarnings(fn () => $this->runCommand('migrate:fresh', ['--seed' => true, '--seeder' => 'Database\Seeders\PostSeeder']));
+        $tester = $this->runCommand('migrate:fresh', ['--seed' => true, '--seeder' => 'Database\Seeders\PostSeeder']);
 
         // Then
-        $this->assertSame(['foreach() argument must be of type array|object, string given'], $warnings);
-        $this->assertSame([], $this->db()->table('seed_runs')->pluck('name')->all());
+        $this->assertCommandSucceeded($tester);
+        $this->assertSame(['post'], $this->db()->table('seed_runs')->pluck('name')->all());
     }
 
     /**
@@ -131,30 +124,5 @@ final class FreshMigrationCommandTest extends IntegrationTestCase
         $this->assertSame([], $this->questionHelper->getAskedQuestions());
         $this->assertCount(1, $this->ranMigrations());
         $this->assertSame(['user', 'post', 'comment'], $this->db()->table('seed_runs')->orderBy('id')->pluck('name')->all());
-    }
-
-    // -------------------
-    // 🛠️ Helpers
-    // -------------------
-
-    /**
-     * @return list<string> Messages of the PHP warnings raised by the callback
-     */
-    private function captureWarnings(callable $callback): array
-    {
-        $warnings = [];
-        set_error_handler(function (int $level, string $message) use (&$warnings): bool {
-            $warnings[] = $message;
-
-            return true;
-        }, E_WARNING);
-
-        try {
-            $callback();
-        } finally {
-            restore_error_handler();
-        }
-
-        return $warnings;
     }
 }
