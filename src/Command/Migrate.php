@@ -45,9 +45,6 @@ class Migrate extends AbstractCommand
         $this->migrator->usingConnection($this->getConnectionName(), function () use ($output, $input): void {
             $this->prepareDatabase();
 
-            // Next, we will check to see if a path option has been defined. If it has
-            // we will use the path relative to the root of this installation folder
-            // so that migrations may be run for any path within the applications.
             $this->migrator->setOutput(new OutputStyle($input, $output))
                 ->run([$this->getMigrationPath()], [
                     'pretend' => $this->input->getOption('dry-run'),

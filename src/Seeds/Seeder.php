@@ -8,7 +8,7 @@ use Illuminate\Database\Query\Builder;
 abstract class Seeder
 {
     /**
-     * Enables, if supported, wrapping the migration within a transaction.
+     * Enables, if supported, wrapping the seeder within a transaction.
      */
     public bool $withinTransaction = true;
 

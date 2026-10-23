@@ -26,7 +26,7 @@ supporting a new Illuminate version without breaking change is a minor release, 
 an Illuminate or PHP version) is a major release.
 
 # After run init
-Will created binary file in directory when running current process. For custom configuration file settings, it is possible to set the environment variable `ELMIGRATOR_CONFIG` or change the binary file to similar:
+`init` creates a `migrator` binary file in the current directory. For custom configuration file settings, it is possible to set the environment variable `ELMIGRATOR_CONFIG` or change the binary file to similar:
 
 ```php
 #!/usr/bin/env php
@@ -36,7 +36,7 @@ if (!isset($_ENV['ELMIGRATOR_CONFIG'])) {
     $_ENV['ELMIGRATOR_CONFIG'] = 'database/elmigrator.php';
 }
 
-$app = require vendor/hyde1/eloquent-migrations/app/elmigrator.php';
+$app = require 'vendor/hyde1/eloquent-migrations/app/elmigrator.php';
 $app->run();
 ```
 
