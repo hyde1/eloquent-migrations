@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       illuminate:
-        description: "Illuminate version constraint for the upcoming job (e.g. ^13.0, 13.x-dev, dev-master)"
+        description: "Illuminate version constraint for the upcoming job (e.g. ^14.0, 14.x-dev, dev-master)"
         required: false
         type: string
 
@@ -23,15 +23,17 @@ permissions:
 
 jobs:
   tests:
-    name: "PHP ${{ matrix.stack.php }} - ${{ matrix.stack.dependencies }} deps - ${{ matrix.database }}"
+    name: "PHP ${{ matrix.stack.php }} - ${{ matrix.stack.dependencies }} deps${{ matrix.stack.illuminate && format(' - Illuminate {0}', matrix.stack.illuminate) || '' }} - ${{ matrix.database }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         database: [sqlite, pgsql, mysql]
-        # Supported range of composer.json: oldest PHP with lowest dependencies, newest PHP with latest ones
+        # Supported range of composer.json: oldest PHP with lowest dependencies, newest PHP with latest ones,
+        # plus the latest release of each older supported Illuminate major
         stack:
           - { php: "8.4", dependencies: lowest }
+          - { php: "8.5", dependencies: highest, illuminate: "^12.0" }
           - { php: "8.5", dependencies: highest }
     steps:
       - uses: actions/checkout@v7
@@ -45,6 +47,16 @@ jobs:
           php-version: ${{ matrix.stack.php }}
           extensions: pdo_sqlite, pdo_pgsql, pdo_mysql
           coverage: none
+
+      - name: Restrict Illuminate to ${{ matrix.stack.illuminate }}
+        if: matrix.stack.illuminate
+        env:
+          ILLUMINATE_VERSION: ${{ matrix.stack.illuminate }}
+        run: |
+          composer require --no-update \
+            "illuminate/database:$ILLUMINATE_VERSION" \
+            "illuminate/console:$ILLUMINATE_VERSION" \
+            "illuminate/filesystem:$ILLUMINATE_VERSION"
 
       - uses: ramsey/composer-install@v3
         with:
@@ -68,7 +80,7 @@ jobs:
       fail-fast: false
       matrix:
         database: [sqlite, pgsql, mysql]
-        illuminate: ${{ inputs.illuminate && fromJSON(format('[{0}]', toJSON(inputs.illuminate))) || fromJSON('["^13.0", "dev-master"]') }}
+        illuminate: ${{ inputs.illuminate && fromJSON(format('[{0}]', toJSON(inputs.illuminate))) || fromJSON('["dev-master"]') }}
     steps:
       - uses: actions/checkout@v7
 
