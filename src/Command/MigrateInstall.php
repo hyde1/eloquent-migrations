@@ -26,7 +26,7 @@ class MigrateInstall extends AbstractCommand
         $this->bootstrap($input, $output);
 
         if (! $this->confirmToProceed()) {
-            return 0;
+            return self::SUCCESS;
         }
 
         $repository = new DatabaseMigrationRepository($this->getDb(), $this->getMigrationTable());
@@ -35,6 +35,6 @@ class MigrateInstall extends AbstractCommand
 
         $this->output->writeln('<info>Migration table created successfully.</info>');
 
-        return 0;
+        return self::SUCCESS;
     }
 }

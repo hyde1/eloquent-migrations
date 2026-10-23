@@ -50,6 +50,6 @@ class Rollback extends AbstractCommand
                 );
         });
 
-        return 0;
+        return self::SUCCESS;
     }
 }

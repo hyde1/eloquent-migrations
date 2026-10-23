@@ -18,7 +18,7 @@ class RunSeed extends AbstractCommand
     {
         $this
             ->setDescription('Run seed')
-            ->addOption('--seed', '-s', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'What is the name of the seeder?')
+            ->addOption('seed', 's', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'What is the name of the seeder?')
             ->addOption('force', null, InputOption::VALUE_NONE, 'Force the operation to run when in production')
             ->setHelp('Run all (or specified) seeders' . PHP_EOL);
 
@@ -29,7 +29,7 @@ class RunSeed extends AbstractCommand
     {
         $this->bootstrap($input, $output);
         if (!$this->confirmToProceed()) {
-            return 1;
+            return self::FAILURE;
         }
 
         $this->getDb();
@@ -51,7 +51,7 @@ class RunSeed extends AbstractCommand
         $output->writeln('');
         $output->writeln('<comment>All seed completed. Took ' . sprintf('%.4fs', $end - $start) . '</comment>');
 
-        return 0;
+        return self::SUCCESS;
     }
 
     protected function runSeed(?string $seed = null): void

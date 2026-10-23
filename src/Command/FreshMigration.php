@@ -29,7 +29,7 @@ class FreshMigration extends AbstractCommand
         $this->bootstrap($input, $output);
 
         if (! $this->confirmToProceed()) {
-            return 1;
+            return self::FAILURE;
         }
 
         if ($this->input->getOption('drop-views')) {
@@ -58,7 +58,7 @@ class FreshMigration extends AbstractCommand
             ]));
         }
 
-        return 0;
+        return self::SUCCESS;
     }
 
     /**
