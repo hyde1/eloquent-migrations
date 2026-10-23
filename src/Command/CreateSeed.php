@@ -9,7 +9,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Illuminate\Database\Migrations\DatabaseMigrationRepository;
-use Illuminate\Filesystem\Filesystem;
+use Hyde1\EloquentMigrations\Support\TemplateWriter;
 
 #[AsCommand('seed:create')]
 class CreateSeed extends AbstractCommand
@@ -31,23 +31,7 @@ class CreateSeed extends AbstractCommand
         $className = $this->getClassName();
         $path = $this->getSeederPath($className);
 
-        $contents = file_get_contents(__DIR__ . '/../../data/Seeder.php.dist');
-        if ($contents === false) {
-            throw new \RuntimeException('Cannot read template file...');
-        }
-
-        $contents = str_replace('DummySeeder', $className, $contents);
-
-        // Like the migrations directory, which MigrationCreator creates on demand
-        new Filesystem()->ensureDirectoryExists(dirname($path));
-
-        $ret = file_put_contents($path, $contents);
-        if ($ret === false) {
-            throw new \RuntimeException(sprintf(
-                'Cannot write seed file: %s',
-                $path,
-            ));
-        }
+        new TemplateWriter()->write('data/Seeder.php.dist', $path, ['DummySeeder' => $className]);
         $output->writeln("<info>Seed created</info> $path");
 
         return self::SUCCESS;

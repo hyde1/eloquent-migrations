@@ -11,6 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
+use Hyde1\EloquentMigrations\Support\TemplateWriter;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 
@@ -30,7 +31,7 @@ class CreateMigration extends AbstractCommand
 
         parent::configure();
 
-        $this->creator = new MigrationCreator(new Filesystem(), __DIR__ . '/../../data/stubs');
+        $this->creator = new MigrationCreator(new Filesystem(), TemplateWriter::path('data/stubs'));
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
