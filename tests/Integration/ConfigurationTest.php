@@ -7,7 +7,9 @@ namespace Hyde1\EloquentMigrations\Tests\Integration;
 use Hyde1\EloquentMigrations\Command\AbstractCommand;
 use Hyde1\EloquentMigrations\Tests\Support\IntegrationTestCase;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\ApplicationTester;
 
@@ -134,6 +136,28 @@ final class ConfigurationTest extends IntegrationTestCase
         $this->assertStringContainsString('Migration table: ' . self::MIGRATION_TABLE, $tester->getDisplay());
         $this->assertSame(1, $GLOBALS['elmigrator_config_loads']);
         unset($GLOBALS['elmigrator_config_loads']);
+    }
+
+    /**
+     * A command instance can be run several times with the same input and output objects (workers, tests).
+     * Checks each run loads the configuration again, so a changed config file is taken into account.
+     */
+    public function testEachRunOfTheSameCommandLoadsTheConfiguration(): void
+    {
+        // Given
+        /** @var Application $application */
+        $application = require __DIR__ . '/../../app/elmigrator.php';
+        $command = $application->find('migrate:install');
+        $input = new ArrayInput([]);
+        $output = new BufferedOutput();
+        $command->run($input, $output);
+        $this->writeConfig(options: ['migration_table' => 'other_migrations']);
+
+        // When
+        $command->run($input, $output);
+
+        // Then
+        $this->assertTableExists('other_migrations');
     }
 
     public function testFailsWithAnExplicitMessageWhenNoConfigFileIsFound(): void

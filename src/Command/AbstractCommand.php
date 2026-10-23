@@ -25,6 +25,7 @@ abstract class AbstractCommand extends Command
     protected OutputInterface $output;
     protected string $environment;
     protected ?string $database;
+    private bool $bootstrapped = false;
 
     protected function configure(): void
     {
@@ -39,6 +40,8 @@ abstract class AbstractCommand extends Command
     protected function initialize(InputInterface $input, OutputInterface $output): void
     {
         parent::initialize($input, $output);
+        // Each run loads the configuration again, even with the same input and output
+        $this->bootstrapped = false;
         $this->bootstrap($input, $output);
     }
 
@@ -48,13 +51,14 @@ abstract class AbstractCommand extends Command
      */
     protected function bootstrap(InputInterface $input, OutputInterface $output): void
     {
-        if (isset($this->input, $this->output) && $this->input === $input && $this->output === $output) {
+        if ($this->bootstrapped) {
             return;
         }
 
         $this->input = $input;
         $this->output = $output;
         $this->loadConfig($input);
+        $this->bootstrapped = true;
     }
 
     protected function loadConfig(InputInterface $input): void
