@@ -6,6 +6,7 @@ namespace Hyde1\EloquentMigrations\Tests\Integration\Command;
 
 use Hyde1\EloquentMigrations\Tests\Support\IntegrationTestCase;
 use Illuminate\Database\Schema\Blueprint;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class FreshMigrationCommandTest extends IntegrationTestCase
 {
@@ -71,14 +72,15 @@ final class FreshMigrationCommandTest extends IntegrationTestCase
         $this->assertSame(['user', 'post', 'comment'], $this->db()->table('seed_runs')->orderBy('id')->pluck('name')->all());
     }
 
-    public function testRunsOnlyTheGivenSeeder(): void
+    #[DataProvider('postSeederNamesProvider')]
+    public function testRunsOnlyTheGivenSeeder(string $seederName): void
     {
         // Given
         $this->writeConfig(options: ['seeds' => self::seedersFixturePath('dependencies')]);
         $this->useMigrations('seed_runs');
 
         // When
-        $tester = $this->runCommand('migrate:fresh', ['--seed' => true, '--seeder' => 'Database\Seeders\PostSeeder']);
+        $tester = $this->runCommand('migrate:fresh', ['--seed' => true, '--seeder' => $seederName]);
 
         // Then
         $this->assertCommandSucceeded($tester);
@@ -124,5 +126,18 @@ final class FreshMigrationCommandTest extends IntegrationTestCase
         $this->assertSame([], $this->questionHelper->getAskedQuestions());
         $this->assertCount(1, $this->ranMigrations());
         $this->assertSame(['user', 'post', 'comment'], $this->db()->table('seed_runs')->orderBy('id')->pluck('name')->all());
+    }
+
+    // -------------------
+    // 🧪 Data Providers
+    // -------------------
+
+    /** @return array<string, array{string}> */
+    public static function postSeederNamesProvider(): array
+    {
+        return [
+            'fully qualified class name' => ['Database\\Seeders\\PostSeeder'],
+            'short class name' => ['PostSeeder'],
+        ];
     }
 }

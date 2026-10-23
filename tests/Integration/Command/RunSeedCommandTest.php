@@ -201,6 +201,7 @@ final class RunSeedCommandTest extends IntegrationTestCase
         return [
             'single seeder, dependencies are not run' => [['Database\Seeders\CommentSeeder'], ['comment']],
             'several seeders, in the given order' => [['Database\Seeders\PostSeeder', 'Database\Seeders\UserSeeder'], ['post', 'user']],
+            'short class name' => [['CommentSeeder'], ['comment']],
         ];
     }
 }
