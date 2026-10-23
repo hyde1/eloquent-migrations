@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // The project autoloader comes before the library's own one: loading both would register two copies of the classes
 $files = [
     __DIR__ . '/../autoload.php',
