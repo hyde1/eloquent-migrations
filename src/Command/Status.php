@@ -6,10 +6,8 @@ use Illuminate\Support\Collection;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Hyde1\EloquentMigrations\Migrations\Migrator;
 use Illuminate\Database\Migrations\DatabaseMigrationRepository;
 use Illuminate\Database\Migrations\Migrator as BaseMigrator;
-use Illuminate\Filesystem\Filesystem;
 
 #[AsCommand('status')]
 class Status extends AbstractCommand
@@ -28,10 +26,8 @@ class Status extends AbstractCommand
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->repository = new DatabaseMigrationRepository($this->getDb(), $this->getMigrationTable());
-        $this->repository->setSource($this->getConnectionName());
-        $this->migrator = new Migrator($this->repository, $this->getDb(), new Filesystem());
-        $this->migrator->setOutput($output);
+        $this->repository = $this->createMigrationRepository();
+        $this->migrator = $this->createMigrator($this->repository);
 
         if (! $this->migrator->repositoryExists()) {
             throw new \RuntimeException('The migration table is not installed');

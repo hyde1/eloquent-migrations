@@ -7,10 +7,8 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Hyde1\EloquentMigrations\Migrations\Migrator;
 use Illuminate\Database\Migrations\DatabaseMigrationRepository;
 use Illuminate\Database\Migrations\Migrator as BaseMigrator;
-use Illuminate\Filesystem\Filesystem;
 
 #[AsCommand('migrate')]
 class Migrate extends AbstractCommand
@@ -36,9 +34,8 @@ class Migrate extends AbstractCommand
             return 0;
         }
 
-        $this->repository = new DatabaseMigrationRepository($this->getDb(), $this->getMigrationTable());
-        $this->migrator = new Migrator($this->repository, $this->getDb(), new Filesystem());
-        $this->migrator->setOutput($output);
+        $this->repository = $this->createMigrationRepository();
+        $this->migrator = $this->createMigrator($this->repository);
 
         $this->migrator->usingConnection($this->getConnectionName(), function () use ($output, $input): void {
             $this->prepareDatabase();

@@ -3,7 +3,10 @@
 namespace Hyde1\EloquentMigrations\Command;
 
 use Closure;
+use Hyde1\EloquentMigrations\Migrations\Migrator;
 use Illuminate\Database\DatabaseManager;
+use Illuminate\Database\Migrations\DatabaseMigrationRepository;
+use Illuminate\Filesystem\Filesystem;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Helper\Table;
@@ -124,6 +127,25 @@ abstract class AbstractCommand extends Command
     protected function getMigrationTable(): string
     {
         return (string) $this->config['migration_table'];
+    }
+
+    /**
+     * Repository of the configured migration table, on the selected connection.
+     */
+    protected function createMigrationRepository(): DatabaseMigrationRepository
+    {
+        $repository = new DatabaseMigrationRepository($this->getDb(), $this->getMigrationTable());
+        $repository->setSource($this->getConnectionName());
+
+        return $repository;
+    }
+
+    protected function createMigrator(DatabaseMigrationRepository $repository): Migrator
+    {
+        $migrator = new Migrator($repository, $this->getDb(), new Filesystem());
+        $migrator->setOutput($this->output);
+
+        return $migrator;
     }
 
     /**
